@@ -32,7 +32,7 @@ const SiteNav: React.FC = () => {
           />
         </Link>
 
-        <nav className="hidden md:block" id="lato-font">
+        <nav className="hidden md:block lato-font">
           <ul className="flex items-center gap-1">
             {NAV_ITEMS.map((item) => (
               <li key={item.href}>
@@ -60,6 +60,8 @@ const SiteNav: React.FC = () => {
           onClick={() => setIsMobileMenuOpen((open) => !open)}
           className="md:hidden p-2 text-gray-700 hover:text-[#ff6900]"
           aria-label={isMobileMenuOpen ? 'Close menu' : 'Open menu'}
+          aria-expanded={isMobileMenuOpen}
+          aria-controls="site-nav-mobile-menu"
         >
           {isMobileMenuOpen ? <RxCross2 className="h-6 w-6" /> : <FiMenu className="h-6 w-6" />}
         </button>
@@ -67,8 +69,8 @@ const SiteNav: React.FC = () => {
 
       {isMobileMenuOpen && (
         <nav
-          className="md:hidden border-t border-gray-100 bg-white px-4 py-3"
-          id="lato-font"
+          id="site-nav-mobile-menu"
+          className="md:hidden border-t border-gray-100 bg-white px-4 py-3 lato-font"
           aria-label="Mobile"
         >
           <ul className="space-y-1">

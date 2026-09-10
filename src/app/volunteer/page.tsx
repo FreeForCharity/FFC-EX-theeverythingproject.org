@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 const INTEREST_AREAS = ['Promotion', 'Programs', 'Expertise', 'Other'] as const
 
 export default function VolunteerPage() {
-  const subject = encodeURIComponent('Volunteering with The Everything Project')
+  const subject = encodeURIComponent(`Volunteering with ${siteConfig.name}`)
   const body = encodeURIComponent(
     'Hi,\n\nI would like to volunteer. Here is a bit about me:\n\nName:\nAreas I am interested in (Promotion / Programs / Expertise / Other):\nRelevant experience:\n'
   )
