@@ -18,29 +18,29 @@ export const testConfig = {
    */
   socialLinks: {
     facebook: {
-      url: 'facebook.com/freeforcharity',
+      url: 'facebook.com/The-Everything-Project-104146074916003',
       ariaLabel: 'Facebook',
     },
     twitter: {
-      url: 'x.com/freeforcharity1',
+      url: 'twitter.com/TheEver09371964',
       ariaLabel: 'X (Twitter)',
     },
-    linkedin: {
-      url: 'linkedin.com/company/freeforcharity',
-      ariaLabel: 'LinkedIn',
-    },
-    github: {
-      url: 'github.com/FreeForCharity/FFC-IN-Footer_Only_Template',
-      ariaLabel: 'GitHub',
+    instagram: {
+      url: 'instagram.com/the_everything_project',
+      ariaLabel: 'Instagram',
     },
   },
 
   /**
    * Copyright Configuration
    * Used in: tests/copyright.spec.ts
+   *
+   * No 501(c)(3) status line: this charity's nonprofit status has not been
+   * validated in FFC's onboarding records (FFC footer standard Level 1 —
+   * see src/lib/site.config.ts `hasVerifiedNonprofitStatus`).
    */
   copyright: {
-    text: 'All Rights Are Reserved by Free For Charity a US 501c3 Non Profit',
+    text: 'All Rights Are Reserved by The Everything Project',
     searchText: 'All Rights Are Reserved',
     // The permanent "Supported by Free For Charity" attribution (FFC footer
     // standard) — keep these expectations when customizing the template.
@@ -61,7 +61,7 @@ export const testConfig = {
    * Used in: tests/footer-only.spec.ts
    */
   logo: {
-    headerAlt: 'Free For Charity',
+    headerAlt: 'The Everything Project',
   },
 
   /**

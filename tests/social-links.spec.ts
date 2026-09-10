@@ -46,33 +46,28 @@ test.describe('Footer Social Links', () => {
       testConfig.socialLinks.twitter.ariaLabel
     )
 
-    // Verify LinkedIn link is present
-    const linkedInLink = page.locator(`footer a[href*="${testConfig.socialLinks.linkedin.url}"]`)
-    await expect(linkedInLink).toBeVisible()
-    await expect(linkedInLink).toHaveAttribute(
+    // Verify Instagram link is present
+    const instagramLink = page.locator(`footer a[href*="${testConfig.socialLinks.instagram.url}"]`)
+    await expect(instagramLink).toBeVisible()
+    await expect(instagramLink).toHaveAttribute(
       'aria-label',
-      testConfig.socialLinks.linkedin.ariaLabel
+      testConfig.socialLinks.instagram.ariaLabel
     )
-
-    // Verify GitHub link is present
-    const githubLink = page.locator(`footer a[href*="${testConfig.socialLinks.github.url}"]`)
-    await expect(githubLink).toBeVisible()
-    await expect(githubLink).toHaveAttribute('aria-label', testConfig.socialLinks.github.ariaLabel)
   })
 
-  test('should have exactly 4 social media icons', async ({ page }) => {
+  test('should have exactly 3 social media icons', async ({ page }) => {
     // Navigate to the homepage
     await page.goto('/')
 
     // Count all social media links in the footer
     // They are identified by having target="_blank" and being in the footer's social links section
 
-    // We should have exactly 4 social icons: Facebook, X (Twitter), LinkedIn, GitHub
+    // We should have exactly 3 social icons: Facebook, X (Twitter), Instagram
     // Note: This count might be higher due to other external links in footer
     // So let's be more specific and count only links with aria-label containing social platform names
     const socialMediaLinks = page.locator(
-      `footer a[aria-label="${testConfig.socialLinks.facebook.ariaLabel}"], footer a[aria-label="${testConfig.socialLinks.twitter.ariaLabel}"], footer a[aria-label="${testConfig.socialLinks.linkedin.ariaLabel}"], footer a[aria-label="${testConfig.socialLinks.github.ariaLabel}"]`
+      `footer a[aria-label="${testConfig.socialLinks.facebook.ariaLabel}"], footer a[aria-label="${testConfig.socialLinks.twitter.ariaLabel}"], footer a[aria-label="${testConfig.socialLinks.instagram.ariaLabel}"]`
     )
-    await expect(socialMediaLinks).toHaveCount(4)
+    await expect(socialMediaLinks).toHaveCount(3)
   })
 })

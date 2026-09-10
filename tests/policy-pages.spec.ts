@@ -20,21 +20,26 @@ const policyPages = [
   },
 ]
 
-// Footer policy links use "Free For Charity" prefix and map to specific routes.
+// Most footer policy links use the charity's own name (siteConfig.name)
+// prefix and map to specific routes; the FFC donation policy link is
+// hardcoded to "Free For Charity" on purpose (see src/components/footer).
 // With trailingSlash enabled, Next.js Link renders hrefs with trailing slashes.
 const footerPolicyLinks = [
   { name: 'Free For Charity Donation Policy', href: '/free-for-charity-donation-policy/' },
   // The charity's own donation policy. Matched with exact names below so this
   // does not also match "Free For Charity Donation Policy".
   { name: 'Donation Policy', href: '/donation-policy/' },
-  { name: 'Free For Charity Privacy Policy', href: '/privacy-policy/' },
-  { name: 'Free For Charity Cookie Policy', href: '/cookie-policy/' },
-  { name: 'Free For Charity Terms of Service', href: '/terms-of-service/' },
+  { name: 'The Everything Project Privacy Policy', href: '/privacy-policy/' },
+  { name: 'The Everything Project Cookie Policy', href: '/cookie-policy/' },
+  { name: 'The Everything Project Terms of Service', href: '/terms-of-service/' },
   {
-    name: 'Free For Charity Vulnerability Disclosure Policy',
+    name: 'The Everything Project Vulnerability Disclosure Policy',
     href: '/vulnerability-disclosure-policy/',
   },
-  { name: 'Free For Charity Security Acknowledgement', href: '/security-acknowledgements/' },
+  {
+    name: 'The Everything Project Security Acknowledgement',
+    href: '/security-acknowledgements/',
+  },
 ]
 
 test.describe('Policy pages', () => {

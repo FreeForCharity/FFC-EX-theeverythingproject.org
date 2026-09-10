@@ -108,56 +108,91 @@ export type SiteConfig = {
    * nonprofit. Omit for a standalone charity (the footer clause is hidden).
    */
   parentOrg?: { name: string; url: string; hubUrl: string }
+  /**
+   * FFC footer-standard level (see
+   * docs/footer-standard-adoption-checklist.md in FFC-IN-ffcadmin.org).
+   * `false` means this charity's 501(c)(3) status and EIN have not been
+   * validated through FFC's own onboarding records, so the footer must NOT
+   * assert either — even though the live source site's own markup claims
+   * both (see the comment on `ein` below). Flip to `true` only once that
+   * validation happens; the footer will then render the EIN line and the
+   * "a US 501(c)(3) Non Profit" copyright clause automatically.
+   */
+  hasVerifiedNonprofitStatus: boolean
+  /**
+   * Whether `guidestar` below points at a real, confirmed Candid/GuideStar
+   * transparency profile for this charity. `false` hides the entire
+   * Endorsements column (seal image + direct profile link) — no profile was
+   * found for this charity, so `guidestar` below carries inert placeholders
+   * that are never rendered while this stays `false`.
+   */
+  hasGuidestarProfile: boolean
 }
 
 export const siteConfig: SiteConfig = {
-  name: 'Free For Charity',
-  tagline: 'Reduce Costs, Increase Impact',
+  name: 'The Everything Project',
+  tagline: 'Humanitarian Aid for Isle Idjwi',
   description:
-    'Free For Charity connects students, professionals, and businesses with nonprofits to reduce costs and increase revenues—putting more resources back into their missions.',
+    'The Everything Project implements essential humanitarian aid, education, farming, and infrastructure programs for vulnerable and at-risk people on the Isle Idjwi and around Lake Kivu in the Democratic Republic of the Congo.',
   shortDescription:
-    'Connecting students, professionals, and businesses with nonprofits to reduce costs and increase revenues.',
-  url: 'https://ffcworkingsite1.org',
-  twitterHandle: '@freeforcharity',
-  contactEmail: 'clarkemoyer@freeforcharity.org',
+    'Humanitarian aid, education, and development programs for vulnerable communities on the Isle Idjwi, DR Congo.',
+  // No custom domain / public/CNAME at this migration phase — the site
+  // deploys to the default GitHub Pages subpath. sitePath()/siteUrl() below
+  // append the repo-name basePath automatically, so `url` stays the bare
+  // Pages origin (no path segment) to avoid doubling it.
+  url: 'https://freeforcharity.github.io',
+  // Found on the live source site (twitter.com/TheEver09371964).
+  twitterHandle: '@TheEver09371964',
+  // Found in the live site's Forminator contact form target / footer.
+  contactEmail: 'everythingprojectusa@gmail.com',
   keywords: [
+    'The Everything Project',
+    'Isle Idjwi',
+    'Lake Kivu',
+    'Democratic Republic of the Congo',
+    'humanitarian aid',
     'nonprofit',
     'charity',
+    'education',
     'volunteer',
     'donate',
-    'free hosting',
-    'domains',
-    'Microsoft 365',
   ],
-  themeColor: '#ffffff',
+  themeColor: '#ff6900',
   vulnerabilityDisclosurePath: '/vulnerability-disclosure-policy',
+  // LinkedIn/GitHub dropped (template defaults) — only accounts actually
+  // linked from the live source site are carried forward.
   social: [
-    { label: 'Facebook', href: 'https://www.facebook.com/freeforcharity' },
-    { label: 'X (Twitter)', href: 'https://x.com/freeforcharity1' },
-    { label: 'LinkedIn', href: 'https://www.linkedin.com/company/freeforcharity/' },
-    // Repo name uses underscores — the hyphenated variant 404s.
-    { label: 'GitHub', href: 'https://github.com/FreeForCharity/FFC-IN-Footer_Only_Template' },
+    {
+      label: 'Facebook',
+      href: 'https://www.facebook.com/The-Everything-Project-104146074916003/',
+    },
+    { label: 'X (Twitter)', href: 'https://twitter.com/TheEver09371964' },
+    { label: 'Instagram', href: 'https://www.instagram.com/the_everything_project/' },
   ],
-  ein: '46-2471893',
-  phone: { display: '(520) 222-8104', tel: '5202228104' },
+  // The live WordPress site's own footer and schema.org markup publish an
+  // EIN ("85-4043819") and describe the org as a "501c3 charity" — but that
+  // is the charity's own unverified self-report on a legacy site, not
+  // something validated in FFC's onboarding records for this migration.
+  // Per the migration's hard rule against fabricating legal/EIN status, this
+  // value is an inert placeholder (never displayed — see
+  // `hasVerifiedNonprofitStatus` above) until an operator confirms the
+  // number and flips that flag.
+  ein: 'Unverified — see hasVerifiedNonprofitStatus in site.config.ts',
+  // Published in the live site's own footer.
+  phone: { display: '(978) 254-3327', tel: '9782543327' },
   addresses: [
     {
-      label: 'Main Address',
-      lines: ['4030 Wake Forrest Road', 'Suite 349 Raleigh North', 'Carolina 27609'],
+      label: 'Mailing Address',
+      lines: ['20 Portsmouth Avenue', 'Suite 1 #1113', 'Stratham, NH 03885'],
       mapUrl:
-        'https://www.google.com/maps/search/?api=1&query=4030+Wake+Forrest+Road+Suite+349+Raleigh+NC+27609',
-    },
-    {
-      label: 'PA Office Address',
-      lines: ['301 Science Park Road Suite', '119 State College PA 16803'],
-      mapUrl:
-        'https://www.google.com/maps/place/Free+For+Charity/@40.7768455,-77.8963305,17z/data=!3m1!4b1!4m6!3m5!1s0x89cea944b44a2e01:0x6fc2d6bf09e00a0f!8m2!3d40.7768415!4d-77.8937556!16s%2Fg%2F11vzvbl2d7?entry=ttu&g_ep=EgoyMDI1MTEyMy4xIKXMDSoASAFQAw%3D%3D',
+        'https://www.google.com/maps/search/?api=1&query=20+Portsmouth+Avenue+Suite+1+%231113+Stratham+NH+03885',
     },
   ],
+  // No Candid/GuideStar profile was found for this charity — these are
+  // inert placeholders (see `hasGuidestarProfile` above).
   guidestar: {
-    profileUrl: 'https://www.guidestar.org/profile/46-2471893',
-    directProfileUrl:
-      'https://www.guidestar.org/profile/shared/bbbe173a-87b9-4af9-a8a2-cae255a95742',
+    profileUrl: 'https://theeverythingproject.org/',
+    directProfileUrl: 'https://theeverythingproject.org/',
   },
   supportedBy: {
     name: 'Free For Charity',
@@ -167,6 +202,8 @@ export const siteConfig: SiteConfig = {
   // parentOrg is intentionally unset: this template is for standalone
   // charities by default. Set it only for a genuine "a project of"
   // fiscal-sponsorship relationship.
+  hasVerifiedNonprofitStatus: false,
+  hasGuidestarProfile: false,
 }
 
 function configuredBasePath(): string {

@@ -115,8 +115,8 @@ Test coverage includes:
 
 The site automatically deploys to GitHub Pages via `.github/workflows/nextjs.yml`. The GTM implementation works on both:
 
-1. **Custom domain**: https://www.ffcworkingsite1.org
-2. **GitHub Pages**: https://freeforcharity.github.io/FFC_Single_Page_Template/
+1. **Custom domain**: not in use at this migration phase
+2. **GitHub Pages**: https://freeforcharity.github.io/FFC-EX-theeverythingproject.org/
 
 The GTM ID is hardcoded in the component, so no additional configuration is needed for deployment.
 
