@@ -1,4 +1,5 @@
 import './globals.css'
+import SiteNav from './../components/site-nav'
 import Footer from './../components/footer'
 import CookieConsent from './../components/cookie-consent'
 import GoogleTagManager, { GoogleTagManagerNoScript } from './../components/google-tag-manager'
@@ -90,6 +91,7 @@ export default function RootLayout({
         <a href="#main-content" className="skip-to-content">
           Skip to main content
         </a>
+        <SiteNav />
         {/* <PopupProvider> */}
         {children}
         <Footer />

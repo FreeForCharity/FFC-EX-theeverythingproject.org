@@ -13,10 +13,6 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'ffcworkingsite1.org',
-      },
-      {
-        protocol: 'https',
         hostname: 'staging.freeforcharity.org',
       },
       {

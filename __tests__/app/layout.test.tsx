@@ -66,7 +66,7 @@ describe('Root layout', () => {
       'light'
     )
     expect(document.querySelector('meta[name="theme-color"]')?.getAttribute('content')).toBe(
-      '#ffffff'
+      '#ff6900'
     )
   })
 
