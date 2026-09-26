@@ -20,7 +20,7 @@ describe('HomePage (app/home-page)', () => {
 
   it('should render the program areas', () => {
     render(<HomePage />)
-    for (const program of ['Education', 'Cultivation', 'Infrastructure', 'Quality of Life']) {
+    for (const program of ['Education', 'Cultivation', 'Infrastructure', 'Quality Life']) {
       expect(screen.getByText(program)).toBeInTheDocument()
     }
   })

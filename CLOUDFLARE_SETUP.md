@@ -90,7 +90,7 @@ Cloudflare Free plan includes **3 Page Rules**. Use them wisely for maximum perf
 
 #### Page Rule 2: Cache Images and Media
 
-**URL Pattern:** `*ffcworkingsite1.org/Images/*` OR `*ffcworkingsite1.org/Svgs/*`
+**URL Pattern:** `*ffcworkingsite1.org/images/*` OR `*ffcworkingsite1.org/svgs/*`
 
 **Settings:**
 

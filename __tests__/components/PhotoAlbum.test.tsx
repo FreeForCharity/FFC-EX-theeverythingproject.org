@@ -27,6 +27,21 @@ describe('PhotoAlbum component', () => {
     expect(screen.getByRole('button', { name: 'Close' })).toHaveFocus()
   })
 
+  it('shows the full-size image in the lightbox when one is given', () => {
+    render(<PhotoAlbum photos={[{ ...photos[0], full: '/a/full/photo-01.jpg' }, photos[1]]} />)
+    expect(screen.getByRole('img', { name: 'Test photo 1' })).toHaveAttribute(
+      'src',
+      '/a/photo-01.jpg'
+    )
+    fireEvent.click(screen.getByRole('button', { name: 'Open Test photo 1' }))
+    const dialog = screen.getByRole('dialog', { name: 'Test photo 1' })
+    expect(dialog.querySelector('img')).toHaveAttribute('src', '/a/full/photo-01.jpg')
+    fireEvent.click(screen.getByRole('button', { name: 'Next photo' }))
+    expect(
+      screen.getByRole('dialog', { name: 'Test photo 2' }).querySelector('img')
+    ).toHaveAttribute('src', '/a/photo-02.jpg')
+  })
+
   it('steps with buttons and arrow keys, wrapping at the ends', () => {
     render(<PhotoAlbum photos={photos} />)
     fireEvent.click(screen.getByRole('button', { name: 'Open Test photo 3' }))
@@ -65,8 +80,18 @@ describe('gallery albums', () => {
     for (const album of GALLERY_ALBUMS) {
       for (const photo of albumPhotos(album)) {
         expect(fs.existsSync(path.join(__dirname, '../../public', photo.src))).toBe(true)
+        if (photo.full) {
+          expect(fs.existsSync(path.join(__dirname, '../../public', photo.full))).toBe(true)
+        }
       }
     }
+  })
+
+  it('gives Crayon Drive full-size originals for its lightbox', () => {
+    const crayon = GALLERY_ALBUMS.find((a) => a.slug === 'crayon-drive')!
+    expect(albumPhotos(crayon).every((p) => p.full?.startsWith(`${crayon.photoDir}/full/`))).toBe(
+      true
+    )
   })
 
   it('links every album so each gallery tile opens its photos', () => {

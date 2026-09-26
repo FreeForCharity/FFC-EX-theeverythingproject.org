@@ -4,7 +4,7 @@
  *
  * Catches common ways this template can drift away from FFC best practices:
  *  1. Top-level route folders under src/app/ that are not kebab-case.
- *  2. Hardcoded /Images, /Svgs, or /videos paths missing assetPath().
+ *  2. Hardcoded /images, /svgs, or /videos paths missing assetPath().
  *  3. Common secret patterns committed under src/ or public/.
  *  4. The template placeholder URL ffcworkingsite1.org left behind after a site rebrands.
  *  5. Static security metadata (_headers and security.txt) drifting away from
@@ -227,8 +227,8 @@ async function checkKebabCaseRoutes() {
 
 async function checkAssetPathUsage() {
   const files = await walk(SRC_DIR, (name) => /\.(tsx?|jsx?)$/.test(name))
-  const literalPattern = /(["'`])(\/(?:Images|Svgs|videos)\/[^"'`\n]+?)\1/g
-  const templateBasePattern = /\$\{[^}]*basePath[^}]*\}\/(?:Images|Svgs|videos)\//g
+  const literalPattern = /(["'`])(\/(?:images|svgs|videos)\/[^"'`\n]+?)\1/g
+  const templateBasePattern = /\$\{[^}]*basePath[^}]*\}\/(?:images|svgs|videos)\//g
   const wrappedInAssetPath = /assetPath\s*\([^)]*$/
 
   for (const file of files) {
@@ -256,7 +256,7 @@ async function checkAssetPathUsage() {
       if (insideComment(body, match.index)) continue
       errors.push(
         `${rel}:${lineAt(body, match.index)} hand-rolls basePath asset concatenation. ` +
-          "Use assetPath('/Images/...'), assetPath('/Svgs/...'), or assetPath('/videos/...') instead."
+          "Use assetPath('/images/...'), assetPath('/svgs/...'), or assetPath('/videos/...') instead."
       )
     }
   }

@@ -58,6 +58,7 @@ export default defineConfig({
     'security-metadata.spec.ts',
     'policy-pages.spec.ts',
     'donation.spec.ts',
+    'localized-assets.spec.ts',
   ],
   // Run tests in parallel for better performance
   fullyParallel: true,

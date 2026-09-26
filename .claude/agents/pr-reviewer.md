@@ -14,7 +14,7 @@ You are reviewing a pull request on an FFC-supported nonprofit site built from `
    - All new folders under `src/app/` are kebab-case (no PascalCase or snake_case).
    - No top-level `pages/` directory (this template uses App Router only).
 2. **Asset paths**
-   - Every root-relative static asset reference is wrapped in `assetPath()`. That includes `/Images/`, `/Svgs/`, `/videos/`, and the migrated `/images/theeverythingproject/`.
+   - Every root-relative static asset reference is wrapped in `assetPath()`. That includes `/images/`, `/svgs/`, `/videos/`, and the migrated `/images/theeverythingproject/`.
    - No hardcoded `localhost`, `127.0.0.1`, or absolute internal URLs in JSX.
 3. **Site config drift**
    - Hardcoded copies of values that already live in `src/lib/site.config.ts` (site name, URL, twitter handle, contact email) should reference the config.

@@ -23,11 +23,11 @@ const PROGRAM_AREAS: readonly ProgramArea[] = [
   },
   {
     title: 'Infrastructure',
-    body: 'With the implementation of programs we will work to augment existing infrastructure — energy, communications, community centers (Big Houses), transportation, wells, and plumbing.',
+    body: 'With the implementation of programs we will work to augment existing infrastructure – energy, communications, community centers (Big Houses), transportation, wells, and plumbing.',
   },
   {
-    title: 'Quality of Life',
-    body: 'Simple but substantial development for the future, enhancing daily life for vulnerable and at-risk people on Idjwi.',
+    title: 'Quality Life',
+    body: 'Simple but substantial development for the future. Enhancing the lives of The Everything Project while also changing the socio-economic dynamic of their communities and generating prosperity throughout the region.',
   },
 ]
 
@@ -66,18 +66,19 @@ const HomePage: React.FC = () => {
           <h2 className="text-[28px] md:text-[32px] font-[700] text-[#111827] mb-6">Our Mission</h2>
           <p className="text-[16px] leading-[28px] text-[#444] mb-4">
             The Everything Project was founded to implement essential programs, humanitarian aid,
-            and development on the Isle Idjwi for vulnerable and at risk people — for a greater Lac
+            and development on the Isle Idjwi for vulnerable and at risk people. For a greater Lac
             Kivu.
           </p>
           <p className="text-[16px] leading-[28px] text-[#444] mb-4">
-            Beginning with our networks in Mweso and Minova, as well as clients and children who are
-            dependent upon Don Bosco and JVA around Goma, we are working towards programs on Idjwi.
+            Beginning with our networks in Mweso, Minova, as well as clients and children who are
+            dependent upon Don Bosco and JVA around Goma. With them we will begin working towards
+            programs on Idjwi.
           </p>
           <p className="text-[16px] leading-[28px] text-[#444]">
             Programs on Idjwi will include schools, farms, infrastructure and development for
-            quality of life. Until funding is in place for major programs, we intend to continue to
-            do what we can for vulnerable individuals and their needs, while networking with other
-            organizations and potential aid for them.
+            quality of life. Until funding is in place for major programs we intend to continue to
+            do what we can for the vulnerable individuals and their needs while networking with
+            other organizations and potential aid for them.
           </p>
         </div>
       </section>
@@ -86,11 +87,19 @@ const HomePage: React.FC = () => {
       <section id="programs" className="bg-[#f7f7f5]">
         <div className="max-w-6xl mx-auto px-4 py-16">
           <h2
-            className="text-[28px] md:text-[32px] font-[700] text-[#111827] mb-10 text-center"
+            className="text-[28px] md:text-[32px] font-[700] text-[#111827] mb-6 text-center"
             id="aria-font"
           >
             Our Focus Areas
           </h2>
+          <div className="mb-10 text-center">
+            <h3 className="text-[20px] font-[700] uppercase tracking-wide text-[#111827]">
+              The Seeds of Sustainability
+            </h3>
+            <h3 className="mt-2 text-[20px] font-[700] uppercase tracking-wide text-[#111827]">
+              The Tools of Prosperity
+            </h3>
+          </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             {PROGRAM_AREAS.map((program) => (
               <div key={program.title} className="bg-white rounded-xl p-6 shadow-sm">
@@ -113,6 +122,9 @@ const HomePage: React.FC = () => {
           </h2>
           <p className="text-center text-[15px] text-[#666] mb-10">
             A look at the communities and programs we work with on Idjwi and around Lake Kivu.
+          </p>
+          <p className="text-center text-[15px] text-[#666] -mt-6 mb-10">
+            The Everything Project has begun a Crayon drive.
           </p>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
             {GALLERY_ALBUMS.map((item) => {
@@ -163,7 +175,7 @@ const HomePage: React.FC = () => {
           <LiteYouTubeEmbed
             videoId="eNO83azoVyk"
             title="Christmas at JVA Orphanage"
-            thumbnail="/images/theeverythingproject/jva-christmas-video.jpg"
+            thumbnail={assetPath('/images/theeverythingproject/jva-christmas-video.jpg')}
           />
         </div>
       </section>
