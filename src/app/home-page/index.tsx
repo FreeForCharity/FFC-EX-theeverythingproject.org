@@ -1,6 +1,7 @@
 import React from 'react'
 import Link from 'next/link'
 import { assetPath } from '@/lib/assetPath'
+import { GALLERY_ALBUMS } from '@/lib/galleryAlbums'
 import { siteConfig } from '@/lib/site.config'
 import LiteYouTubeEmbed from '@/components/home-page/LiteYouTubeEmbed'
 
@@ -28,21 +29,6 @@ const PROGRAM_AREAS: readonly ProgramArea[] = [
     title: 'Quality of Life',
     body: 'Simple but substantial development for the future, enhancing daily life for vulnerable and at-risk people on Idjwi.',
   },
-]
-
-type GalleryPreview = {
-  label: string
-  image: string
-  href?: string
-}
-
-const GALLERY_PREVIEW: readonly GalleryPreview[] = [
-  { label: 'Idjwi', image: 'idjwi.jpg' },
-  { label: 'JVA', image: 'jva.jpg' },
-  { label: 'Minova unrecognized refugee camp', image: 'minova.jpg' },
-  { label: 'Don Bosco', image: 'don-bosco.jpg' },
-  { label: 'Mweso', image: 'mweso.jpg' },
-  { label: 'Crayon Drive', image: 'crayon-drive.jpg', href: '/crayon-drive-photo-album' },
 ]
 
 const HomePage: React.FC = () => {
@@ -129,11 +115,11 @@ const HomePage: React.FC = () => {
             A look at the communities and programs we work with on Idjwi and around Lake Kivu.
           </p>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-            {GALLERY_PREVIEW.map((item) => {
+            {GALLERY_ALBUMS.map((item) => {
               const figure = (
                 <figure className="overflow-hidden rounded-lg">
                   <img
-                    src={assetPath(`/images/theeverythingproject/gallery/${item.image}`)}
+                    src={assetPath(`/images/theeverythingproject/gallery/${item.cover}`)}
                     alt={item.label}
                     className="w-full h-40 object-cover"
                     loading="lazy"

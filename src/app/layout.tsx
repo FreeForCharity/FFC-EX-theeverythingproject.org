@@ -35,6 +35,12 @@ const contentSecurityPolicy = [
   'upgrade-insecure-requests',
 ].join('; ')
 
+// React dev mode needs eval() for debugging; production never uses it.
+const metaCsp =
+  process.env.NODE_ENV === 'development'
+    ? contentSecurityPolicy.replace("script-src 'self'", "script-src 'self' 'unsafe-eval'")
+    : contentSecurityPolicy
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -44,7 +50,7 @@ export default function RootLayout({
     <html lang="en">
       <head>
         {/* Keep this aligned with public/_headers for static hosts that honor headers. */}
-        <meta httpEquiv="Content-Security-Policy" content={contentSecurityPolicy} />
+        <meta httpEquiv="Content-Security-Policy" content={metaCsp} />
         <meta name="referrer" content="strict-origin-when-cross-origin" />
         <meta name="color-scheme" content="light" />
         <meta name="theme-color" content={siteConfig.themeColor} />
