@@ -82,7 +82,7 @@ describe('manifest and Lighthouse parity', () => {
     expect(workflow).not.toContain('NEXT_PUBLIC_BASE_PATH: /FFC-IN-Footer_Only_Template')
   })
 
-  test('Lighthouse audits the same parity pages as the full template', () => {
+  test('Lighthouse audits the template parity pages plus the charity routes', () => {
     const lighthouserc = JSON.parse(readFileSync(join(process.cwd(), 'lighthouserc.json'), 'utf8'))
 
     expect(lighthouserc.ci.collect.url).toEqual([
@@ -90,6 +90,11 @@ describe('manifest and Lighthouse parity', () => {
       'http://localhost/cookie-policy/',
       'http://localhost/privacy-policy/',
       'http://localhost/terms-of-service/',
+      'http://localhost/donation/',
+      'http://localhost/volunteer/',
+      'http://localhost/contact-us/',
+      'http://localhost/gallery/',
+      'http://localhost/crayon-drive-photo-album/',
     ])
   })
 })
