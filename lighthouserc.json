@@ -6,7 +6,12 @@
         "http://localhost/index.html",
         "http://localhost/cookie-policy/",
         "http://localhost/privacy-policy/",
-        "http://localhost/terms-of-service/"
+        "http://localhost/terms-of-service/",
+        "http://localhost/donation/",
+        "http://localhost/volunteer/",
+        "http://localhost/contact-us/",
+        "http://localhost/gallery/",
+        "http://localhost/crayon-drive-photo-album/"
       ],
       "numberOfRuns": 3
     },
