@@ -56,7 +56,11 @@ jobs:
           fi
 
       - name: Build site
-        run: pnpm run build || (sleep 15 && pnpm run build)
+        uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
+        with:
+          max_attempts: 2
+          timeout_minutes: 15
+          command: pnpm run build
         env:
           NEXT_PUBLIC_BASE_PATH: ${{ steps.basepath.outputs.value }}
 
