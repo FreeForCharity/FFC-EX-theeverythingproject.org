@@ -25,16 +25,16 @@ Lighthouse CI is integrated into our CI/CD pipeline to automatically audit the w
 
 ### Current Thresholds
 
-Our Lighthouse CI is configured with the following warning thresholds:
+Our Lighthouse CI is configured with the following thresholds:
 
-| Category           | Threshold | Priority |
-| ------------------ | --------- | -------- |
-| **Performance**    | 55%       | Medium   |
-| **Accessibility**  | 90%       | High     |
-| **Best Practices** | 65%       | Medium   |
-| **SEO**            | 95%       | High     |
+| Category           | Threshold | Level   |
+| ------------------ | --------- | ------- |
+| **Performance**    | 55%       | Warning |
+| **Accessibility**  | 90%       | Error   |
+| **Best Practices** | 65%       | Warning |
+| **SEO**            | 95%       | Error   |
 
-These are **warning** levels, not hard failures. They help identify areas for improvement without blocking deployments. Thresholds are set just below current performance levels to catch regressions while allowing for normal score variations.
+Accessibility and SEO are **hard failures**: a route scoring below the threshold fails the Lighthouse job. Performance and Best Practices stay **warnings**, because `output: 'export'` forces `images.unoptimized: true` and static hosting limits what can be tuned.
 
 ---
 
