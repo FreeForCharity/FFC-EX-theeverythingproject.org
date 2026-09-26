@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { ChevronLeft, ChevronRight, X } from 'lucide-react'
 import { assetPath } from '@/lib/assetPath'
 
-type Photo = { src: string; alt: string }
+type Photo = { src: string; alt: string; full?: string }
 
 export default function PhotoAlbum({ photos }: { photos: readonly Photo[] }) {
   const [openIndex, setOpenIndex] = useState<number | null>(null)
@@ -88,7 +88,7 @@ export default function PhotoAlbum({ photos }: { photos: readonly Photo[] }) {
           onClick={(e) => e.target === e.currentTarget && close()}
         >
           <img
-            src={assetPath(current.src)}
+            src={assetPath(current.full ?? current.src)}
             alt={current.alt}
             className="max-h-[85vh] max-w-full object-contain"
           />

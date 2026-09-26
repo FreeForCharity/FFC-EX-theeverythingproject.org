@@ -15,7 +15,6 @@ import {
   cinzel,
 } from '@/lib/fonts'
 import { siteMetadata } from '@/lib/siteMetadata'
-import { assetPath } from '@/lib/assetPath'
 import { CONSENT_MODE_BOOTSTRAP } from '@/lib/consent-mode'
 
 export const metadata = siteMetadata
@@ -24,11 +23,11 @@ const contentSecurityPolicy = [
   "default-src 'self'",
   "script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com https://*.google-analytics.com https://connect.facebook.net https://www.clarity.ms https://*.clarity.ms https://*.paypal.com https://*.paypalobjects.com",
   "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data: blob: https:",
+  "img-src 'self' data: blob: https://www.googletagmanager.com https://www.google-analytics.com https://*.google-analytics.com https://*.g.doubleclick.net https://www.google.com https://www.facebook.com https://*.clarity.ms https://c.bing.com https://*.paypal.com https://*.paypalobjects.com",
   "font-src 'self' data:",
   "connect-src 'self' https://www.googletagmanager.com https://www.google-analytics.com https://*.google-analytics.com https://stats.g.doubleclick.net https://connect.facebook.net https://www.facebook.com https://www.clarity.ms https://*.clarity.ms https://*.paypal.com https://*.paypalobjects.com",
   'frame-src https://www.googletagmanager.com https://www.youtube-nocookie.com https://*.paypal.com',
-  "media-src 'self' blob: https:",
+  "media-src 'self' blob:",
   "object-src 'none'",
   "base-uri 'self'",
   "form-action 'self'",
@@ -47,7 +46,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en">
+    <html lang="en-US">
       <head>
         {/* Keep this aligned with public/_headers for static hosts that honor headers. */}
         <meta httpEquiv="Content-Security-Policy" content={metaCsp} />
@@ -58,14 +57,6 @@ export default function RootLayout({
         {/* Preconnect to external domains for faster resource loading */}
         <link rel="preconnect" href="https://www.googletagmanager.com" />
         <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
-
-        {/* Preload critical LCP image */}
-        <link
-          rel="preload"
-          as="image"
-          href={assetPath('/Images/figma-hero-img.webp')}
-          fetchPriority="high"
-        />
 
         {/*
           Google Consent Mode v2 defaults. MUST come before <GoogleTagManager />

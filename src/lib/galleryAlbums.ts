@@ -5,6 +5,7 @@ export type GalleryAlbum = {
   photoCount: number
   href: string
   photoDir: string
+  fullDir?: string
 }
 
 const album = (slug: string, label: string, cover: string, photoCount: number): GalleryAlbum => ({
@@ -23,6 +24,7 @@ export const CRAYON_DRIVE_ALBUM: GalleryAlbum = {
   photoCount: 35,
   href: '/crayon-drive-photo-album',
   photoDir: '/images/theeverythingproject/crayon-drive',
+  fullDir: '/images/theeverythingproject/crayon-drive/full',
 }
 
 export const GALLERY_ALBUMS: readonly GalleryAlbum[] = [
@@ -34,9 +36,13 @@ export const GALLERY_ALBUMS: readonly GalleryAlbum[] = [
   CRAYON_DRIVE_ALBUM,
 ]
 
-export function albumPhotos(album: GalleryAlbum): { src: string; alt: string }[] {
-  return Array.from({ length: album.photoCount }, (_, i) => ({
-    src: `${album.photoDir}/photo-${String(i + 1).padStart(2, '0')}.jpg`,
-    alt: `${album.label} photo ${i + 1}`,
-  }))
+export function albumPhotos(album: GalleryAlbum): { src: string; alt: string; full?: string }[] {
+  return Array.from({ length: album.photoCount }, (_, i) => {
+    const file = `photo-${String(i + 1).padStart(2, '0')}.jpg`
+    return {
+      src: `${album.photoDir}/${file}`,
+      alt: `${album.label} photo ${i + 1}`,
+      ...(album.fullDir && { full: `${album.fullDir}/${file}` }),
+    }
+  })
 }
