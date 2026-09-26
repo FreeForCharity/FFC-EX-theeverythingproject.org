@@ -2,6 +2,7 @@ import React from 'react'
 import Link from 'next/link'
 import { assetPath } from '@/lib/assetPath'
 import { siteConfig } from '@/lib/site.config'
+import LiteYouTubeEmbed from '@/components/home-page/LiteYouTubeEmbed'
 
 type ProgramArea = {
   title: string
@@ -149,6 +150,22 @@ const HomePage: React.FC = () => {
               View Full Gallery
             </Link>
           </div>
+        </div>
+      </section>
+
+      <section id="video" className="bg-[#f7f7f5]">
+        <div className="max-w-4xl mx-auto px-4 py-16">
+          <h2
+            className="text-[28px] md:text-[32px] font-[700] text-[#111827] mb-8 text-center"
+            id="aria-font"
+          >
+            Christmas at JVA Orphanage
+          </h2>
+          <LiteYouTubeEmbed
+            videoId="eNO83azoVyk"
+            title="Christmas at JVA Orphanage"
+            thumbnail="/images/theeverythingproject/jva-christmas-video.jpg"
+          />
         </div>
       </section>
 
