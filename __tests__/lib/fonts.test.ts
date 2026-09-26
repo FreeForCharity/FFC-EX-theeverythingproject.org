@@ -1,4 +1,4 @@
-// next/font/google cannot be called outside of Next.js module scope in Jest.
+// next/font/local cannot be called outside of Next.js module scope in Jest.
 // We verify that the module exports the expected font constants by checking
 // the source file structure directly.
 
@@ -25,17 +25,21 @@ describe('lib/fonts', () => {
     }
   })
 
-  it('should import from next/font/google', () => {
-    expect(fontsSource).toContain("from 'next/font/google'")
+  it('should self-host fonts instead of fetching from Google at build time', () => {
+    expect(fontsSource).toContain("from 'next/font/local'")
+    expect(fontsSource).not.toContain('next/font/google')
   })
 
-  it('should configure all fonts with latin subset and swap display', () => {
-    const latinMatches = fontsSource.match(/subsets:\s*\['latin'\]/g)
-    const swapMatches = fontsSource.match(/display:\s*'swap'/g)
+  it('should configure all fonts with swap display', () => {
+    expect(fontsSource.match(/display:\s*'swap'/g)).toHaveLength(8)
+  })
 
-    // There are 8 font exports
-    expect(latinMatches).toHaveLength(8)
-    expect(swapMatches).toHaveLength(8)
+  it('should point every font at a committed woff2 file', () => {
+    const files = [...fontsSource.matchAll(/'\.\.\/fonts\/([\w-]+\.woff2)'/g)].map((m) => m[1])
+    expect(files).toHaveLength(9)
+    for (const file of files) {
+      expect(fs.existsSync(path.join(__dirname, '../../src/fonts', file))).toBe(true)
+    }
   })
 
   it('should set CSS variable for each font', () => {
