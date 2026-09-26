@@ -277,7 +277,7 @@ We recently completed a comprehensive image optimization effort that achieved:
 1. **Use WebP format** - Modern image format with superior compression
    - Convert PNG/JPG to WebP using ImageMagick: `convert image.png -quality 85 image.webp`
    - Typical savings: 90-95% file size reduction
-   - Example: mission-video-poster.png (646KB) → .webp (30KB)
+   - Example: a 646KB PNG poster → 30KB WebP
 
 2. **Properly size images** - Match image dimensions to display size
    - Don't load 2000px images for 200px display
