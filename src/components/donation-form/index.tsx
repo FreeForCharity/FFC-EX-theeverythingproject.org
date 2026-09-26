@@ -58,6 +58,7 @@ declare global {
 }
 
 export const AMOUNT_ERROR = 'PayPal amount must be greater than 0.'
+export const AMOUNT_TOO_LARGE = 'Please enter an amount under $1,000,000,000.'
 
 const REQUIRED: [FieldKey, string][] = [
   ['name', 'Please enter your name.'],
@@ -72,7 +73,7 @@ const FIELD_ORDER: FieldKey[] = ['name', 'email', 'street', 'city', 'state', 'zi
 
 export function parseAmount(raw: string): string | null {
   const cleaned = raw.replace(/[$,\s]/g, '')
-  if (!/^\d+(\.\d{1,2})?$/.test(cleaned)) return null
+  if (!/^\d{1,9}(\.\d{1,2})?$/.test(cleaned)) return null
   const value = Number(cleaned)
   return value > 0 ? value.toFixed(2) : null
 }
@@ -85,7 +86,11 @@ export function validate(fields: Fields): Errors {
   if (!errors.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(fields.email.trim())) {
     errors.email = 'Please enter a valid email address.'
   }
-  if (!parseAmount(fields.amount)) errors.amount = AMOUNT_ERROR
+  if (!parseAmount(fields.amount)) {
+    errors.amount = /^\d{10,}/.test(fields.amount.replace(/[$,\s]/g, ''))
+      ? AMOUNT_TOO_LARGE
+      : AMOUNT_ERROR
+  }
   return errors
 }
 
@@ -151,6 +156,7 @@ type DonationFormProps = {
   clientId: string
   currency: string
   charityName: string
+  emailHref: string
   fallback: React.ReactNode
 }
 
@@ -163,6 +169,7 @@ const DonationForm: React.FC<DonationFormProps> = ({
   clientId,
   currency,
   charityName,
+  emailHref,
   fallback,
 }) => {
   const [fields, setFields] = useState<Fields>({
@@ -218,7 +225,15 @@ const DonationForm: React.FC<DonationFormProps> = ({
           createOrder: (_data, actions) =>
             actions.order.create(buildOrder(fieldsRef.current, currency, charityName)),
           onApprove: async (_data, actions) => {
-            const capture = await actions.order.capture()
+            let capture: PayPalCapture
+            try {
+              capture = await actions.order.capture()
+            } catch {
+              setNotice(
+                "We couldn't confirm your donation. Please check your PayPal account or email for a receipt before trying again, or email us and we'll look into it."
+              )
+              return
+            }
             const current = fieldsRef.current
             setReceipt({
               name: current.name.trim(),
@@ -230,9 +245,7 @@ const DonationForm: React.FC<DonationFormProps> = ({
           },
           onCancel: () => setNotice('Your donation was cancelled. No payment was taken.'),
           onError: () =>
-            setNotice(
-              'Something went wrong with PayPal and no payment was taken. Please try again or email us to donate.'
-            ),
+            setNotice('Something went wrong with PayPal. Please try again or email us to donate.'),
         })
         return buttons.render(buttonsRef.current).then(() => {
           if (!cancelled) setStatus('ready')
@@ -314,97 +327,111 @@ const DonationForm: React.FC<DonationFormProps> = ({
   }
 
   return (
-    <form
-      ref={formRef}
-      noValidate
-      onSubmit={(e) => e.preventDefault()}
-      aria-labelledby="donation-form-heading"
-      className="rounded-xl border border-gray-200 p-6 md:p-8"
-    >
-      <h2 id="donation-form-heading" className="text-[22px] font-[700] text-[#111827] mb-1">
-        Donate with PayPal
-      </h2>
-      <p className="text-[14px] text-[#777] mb-6">
-        Fields marked <span className="text-red-600">*</span> are required.
+    <>
+      <p className="mb-6 text-center text-[15px] leading-[24px] text-[#555]">
+        Payments are processed securely by PayPal. You can pay with a PayPal account or a debit or
+        credit card. The details you enter are sent to PayPal with your payment and shared with{' '}
+        {charityName}.
       </p>
+      <form
+        ref={formRef}
+        noValidate
+        onSubmit={(e) => e.preventDefault()}
+        aria-labelledby="donation-form-heading"
+        className="rounded-xl border border-gray-200 p-6 md:p-8"
+      >
+        <h2 id="donation-form-heading" className="text-[22px] font-[700] text-[#111827] mb-1">
+          Donate with PayPal
+        </h2>
+        <p className="text-[14px] text-[#777] mb-6">
+          Fields marked <span className="text-red-600">*</span> are required.
+        </p>
 
-      <div aria-live="polite" className="empty:hidden mb-4">
-        {errorKeys.length > 0 && (
-          <p className="rounded-md bg-red-50 p-3 text-[14px] text-red-800">
-            Please correct the {errorKeys.length === 1 ? 'field' : `${errorKeys.length} fields`}{' '}
-            below.
-          </p>
-        )}
-        {notice && <p className="rounded-md bg-gray-100 p-3 text-[14px] text-[#555]">{notice}</p>}
-      </div>
-
-      <div className="grid gap-4">
-        {field('name', 'Name', true, { autoComplete: 'name', placeholder: 'E.g. John Doe' })}
-        {field('email', 'Email Address', true, {
-          type: 'email',
-          autoComplete: 'email',
-          placeholder: 'E.g. john@doe.com',
-        })}
-        {field('street', 'Street Address', true, {
-          autoComplete: 'address-line1',
-          placeholder: 'E.g. 42 Wallaby Way',
-        })}
-        {field('line2', 'Apartment, suite, etc', false, { autoComplete: 'address-line2' })}
-        <div className="grid gap-4 md:grid-cols-2">
-          {field('city', 'City', true, {
-            autoComplete: 'address-level2',
-            placeholder: 'E.g. Sydney',
-          })}
-          {field('state', 'State/Province', true, {
-            autoComplete: 'address-level1',
-            placeholder: 'E.g. New South Wales',
-          })}
-          {field('zip', 'ZIP / Postal Code', true, {
-            autoComplete: 'postal-code',
-            placeholder: 'E.g. 2000',
-          })}
-          <div>
-            <label
-              htmlFor="donation-country"
-              className="block text-[14px] font-[600] text-[#111827]"
-            >
-              Country
-            </label>
-            <select
-              id="donation-country"
-              name="country"
-              value={fields.country}
-              autoComplete="country"
-              onChange={(e) => {
-                const value = e.target.value
-                setFields((prev) => ({ ...prev, country: value }))
-              }}
-              className={inputClass}
-            >
-              {countryList.map((c) => (
-                <option key={c.code} value={c.code}>
-                  {c.name}
-                </option>
-              ))}
-            </select>
-          </div>
+        <div aria-live="polite" className="empty:hidden mb-4">
+          {errorKeys.length > 0 && (
+            <p className="rounded-md bg-red-50 p-3 text-[14px] text-red-800">
+              Please correct the {errorKeys.length === 1 ? 'field' : `${errorKeys.length} fields`}{' '}
+              below.
+            </p>
+          )}
+          {notice && <p className="rounded-md bg-gray-100 p-3 text-[14px] text-[#555]">{notice}</p>}
         </div>
-        {field('amount', `Donation Amount (${currency})`, true, {
-          inputMode: 'decimal',
-          autoComplete: 'transaction-amount',
-          placeholder: '0.00',
-        })}
-      </div>
 
-      <div className="mt-6 min-h-[48px]">
-        {status === 'loading' && (
-          <p className="text-[14px] text-[#777]" role="status">
-            Loading PayPal…
-          </p>
-        )}
-        <div ref={buttonsRef} data-testid="paypal-buttons" />
-      </div>
-    </form>
+        <div className="grid gap-4">
+          {field('name', 'Name', true, { autoComplete: 'name', placeholder: 'E.g. John Doe' })}
+          {field('email', 'Email Address', true, {
+            type: 'email',
+            autoComplete: 'email',
+            placeholder: 'E.g. john@doe.com',
+          })}
+          {field('street', 'Street Address', true, {
+            autoComplete: 'address-line1',
+            placeholder: 'E.g. 42 Wallaby Way',
+          })}
+          {field('line2', 'Apartment, suite, etc', false, { autoComplete: 'address-line2' })}
+          <div className="grid gap-4 md:grid-cols-2">
+            {field('city', 'City', true, {
+              autoComplete: 'address-level2',
+              placeholder: 'E.g. Sydney',
+            })}
+            {field('state', 'State/Province', true, {
+              autoComplete: 'address-level1',
+              placeholder: 'E.g. New South Wales',
+            })}
+            {field('zip', 'ZIP / Postal Code', true, {
+              autoComplete: 'postal-code',
+              placeholder: 'E.g. 2000',
+            })}
+            <div>
+              <label
+                htmlFor="donation-country"
+                className="block text-[14px] font-[600] text-[#111827]"
+              >
+                Country
+              </label>
+              <select
+                id="donation-country"
+                name="country"
+                value={fields.country}
+                autoComplete="country"
+                onChange={(e) => {
+                  const value = e.target.value
+                  setFields((prev) => ({ ...prev, country: value }))
+                }}
+                className={inputClass}
+              >
+                {countryList.map((c) => (
+                  <option key={c.code} value={c.code}>
+                    {c.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+          {field('amount', `Donation Amount (${currency})`, true, {
+            inputMode: 'decimal',
+            autoComplete: 'transaction-amount',
+            placeholder: '0.00',
+          })}
+        </div>
+
+        <div className="mt-6 min-h-[48px]">
+          {status === 'loading' && (
+            <p className="text-[14px] text-[#777]" role="status">
+              Loading PayPal…
+            </p>
+          )}
+          <div ref={buttonsRef} data-testid="paypal-buttons" />
+        </div>
+      </form>
+      <p className="mt-6 text-center text-[14px] text-[#777]">
+        Prefer another way to give?{' '}
+        <a href={emailHref} className="underline hover:text-[#ff6900]">
+          Email us
+        </a>
+        .
+      </p>
+    </>
   )
 }
 
