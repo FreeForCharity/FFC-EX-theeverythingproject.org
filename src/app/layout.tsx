@@ -22,12 +22,12 @@ export const metadata = siteMetadata
 
 const contentSecurityPolicy = [
   "default-src 'self'",
-  "script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com https://*.google-analytics.com https://connect.facebook.net https://www.clarity.ms https://*.clarity.ms",
+  "script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com https://*.google-analytics.com https://connect.facebook.net https://www.clarity.ms https://*.clarity.ms https://www.paypal.com",
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob: https:",
   "font-src 'self' data:",
-  "connect-src 'self' https://www.googletagmanager.com https://www.google-analytics.com https://*.google-analytics.com https://stats.g.doubleclick.net https://connect.facebook.net https://www.facebook.com https://www.clarity.ms https://*.clarity.ms",
-  'frame-src https://www.googletagmanager.com https://www.youtube-nocookie.com',
+  "connect-src 'self' https://www.googletagmanager.com https://www.google-analytics.com https://*.google-analytics.com https://stats.g.doubleclick.net https://connect.facebook.net https://www.facebook.com https://www.clarity.ms https://*.clarity.ms https://www.paypal.com https://*.paypal.com",
+  'frame-src https://www.googletagmanager.com https://www.youtube-nocookie.com https://www.paypal.com https://*.paypal.com',
   "media-src 'self' blob: https:",
   "object-src 'none'",
   "base-uri 'self'",

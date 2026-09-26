@@ -10,8 +10,8 @@
  * produced for one template can be transcribed directly into the other.
  * Keys the footer-only template genuinely has no use for are omitted:
  *
- *  - `integrations` (Zeffy / Idealist / SociableKit / Microsoft Forms):
- *    this template renders no third-party embeds.
+ *  - `integrations` entries other than `paypal` (Zeffy / Idealist /
+ *    SociableKit / Microsoft Forms): this template renders no such embeds.
  *  - `foundingDate`, `nonprofitStatus`, `alternateNames`: only consumed by
  *    the Single Page template's schema.org JSON-LD, which this template
  *    does not emit.
@@ -127,6 +127,11 @@ export type SiteConfig = {
    * that are never rendered while this stays `false`.
    */
   hasGuidestarProfile: boolean
+  /**
+   * PayPal donation form on /donation. `clientId` is the PayPal app's public
+   * client ID; an empty string hides the form and shows the email fallback.
+   */
+  integrations: { paypal: { clientId: string; currency: string } }
 }
 
 export const siteConfig: SiteConfig = {
@@ -204,6 +209,13 @@ export const siteConfig: SiteConfig = {
   // fiscal-sponsorship relationship.
   hasVerifiedNonprofitStatus: false,
   hasGuidestarProfile: false,
+  // The live site's Forminator PayPal field (form 479) used this app.
+  integrations: {
+    paypal: {
+      clientId: 'AXr-BuEK9wkAcrLElXk4s-J3YYO5mIefuKTAroJ0EqgStmhEEoESadH7vRR44ecghJqLiRqNhjzEK5EB',
+      currency: 'USD',
+    },
+  },
 }
 
 function configuredBasePath(): string {
