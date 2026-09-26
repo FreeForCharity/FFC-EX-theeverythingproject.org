@@ -1,8 +1,9 @@
 import type { Metadata } from 'next'
 import { pageMetadata } from '@/lib/siteMetadata'
 import Link from 'next/link'
-import { assetPath } from '@/lib/assetPath'
 import { siteConfig } from '@/lib/site.config'
+import PhotoAlbum from '@/components/ui/PhotoAlbum'
+import { CRAYON_DRIVE_ALBUM, albumPhotos } from '@/lib/galleryAlbums'
 
 export const metadata: Metadata = pageMetadata({
   title: 'Crayon Drive Photo Album',
@@ -10,11 +11,7 @@ export const metadata: Metadata = pageMetadata({
   path: '/crayon-drive-photo-album',
 })
 
-const PHOTO_COUNT = 30
-
 export default function CrayonDrivePhotoAlbumPage() {
-  const photos = Array.from({ length: PHOTO_COUNT }, (_, i) => String(i + 1).padStart(2, '0'))
-
   return (
     <main id="main-content" className="pb-[80px]">
       <section className="bg-[#111827] text-white">
@@ -30,18 +27,7 @@ export default function CrayonDrivePhotoAlbumPage() {
       </section>
 
       <section className="max-w-5xl mx-auto px-4 py-14">
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-          {photos.map((n) => (
-            <div key={n} className="overflow-hidden rounded-lg">
-              <img
-                src={assetPath(`/images/theeverythingproject/crayon-drive/photo-${n}.jpg`)}
-                alt={`Crayon Drive photo ${Number(n)}`}
-                className="w-full h-32 sm:h-36 object-cover"
-                loading="lazy"
-              />
-            </div>
-          ))}
-        </div>
+        <PhotoAlbum photos={albumPhotos(CRAYON_DRIVE_ALBUM)} />
 
         <div className="mt-10 text-center">
           <Link

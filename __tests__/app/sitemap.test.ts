@@ -15,6 +15,7 @@ import { metadata as volunteerMetadata } from '../../src/app/volunteer/page'
 import { metadata as contactUsMetadata } from '../../src/app/contact-us/page'
 import { metadata as galleryMetadata } from '../../src/app/gallery/page'
 import { metadata as crayonDrivePhotoAlbumMetadata } from '../../src/app/crayon-drive-photo-album/page'
+import { generateMetadata as albumMetadata } from '../../src/app/gallery/[album]/page'
 
 /** Metadata that owns the canonical tag for each sitemap route. */
 const metadataByRoute: Record<string, Metadata> = {
@@ -160,11 +161,14 @@ describe('sitemap URL shape matches the trailingSlash config', () => {
     expect(canonicalPath('/')).toBe('/')
   })
 
-  it('agrees with the canonical tag each page declares', () => {
+  it('agrees with the canonical tag each page declares', async () => {
     delete process.env.NEXT_PUBLIC_BASE_PATH
 
     for (const route of routes) {
-      const metadata = metadataByRoute[route.path]
+      const album = route.path.match(/^\/gallery\/(.+)$/)?.[1]
+      const metadata = album
+        ? await albumMetadata({ params: Promise.resolve({ album }) })
+        : metadataByRoute[route.path]
       expect(metadata).toBeDefined()
       expect(metadata.alternates?.canonical).toBe(siteUrl(route.path))
     }
