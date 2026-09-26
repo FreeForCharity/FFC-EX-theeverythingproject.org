@@ -15,16 +15,18 @@ on:
   # Allow manual trigger
   workflow_dispatch:
 
-# Only run if the deployment was successful
+# Build once, audit every URL in its own parallel job, then merge the reports.
 jobs:
-  lighthouse:
+  build:
     # Only run on successful deployment, PR, or manual trigger
     if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' || github.event_name == 'pull_request' }}
     runs-on: ubuntu-latest
 
     permissions:
       contents: read
-      pull-requests: write
+
+    outputs:
+      urls: ${{ steps.urls.outputs.urls }}
 
     steps:
       - name: Checkout
@@ -67,23 +69,83 @@ jobs:
       - name: Prepare Lighthouse URLs
         run: |
           BASE_PATH="${{ steps.basepath.outputs.value }}"
-          if [ -n "$BASE_PATH" ]; then
-            repo_name="${BASE_PATH#/}"
-            rm -rf .lighthouseci-dist
-            mkdir -p ".lighthouseci-dist/$repo_name"
-            cp -R out/. ".lighthouseci-dist/$repo_name/"
-            jq --arg base_path "$BASE_PATH" \
-              '.ci.collect.staticDistDir = "./.lighthouseci-dist" | .ci.collect.url |= map(sub("http://localhost"; "http://localhost" + $base_path))' \
-              lighthouserc.json > lighthouserc.runtime.json
-            mv lighthouserc.runtime.json lighthouserc.json
-          fi
+          rm -rf .lighthouseci-dist
+          mkdir -p ".lighthouseci-dist$BASE_PATH"
+          cp -R out/. ".lighthouseci-dist$BASE_PATH/"
+          jq --arg base_path "$BASE_PATH" \
+            '.ci.collect.staticDistDir = "./.lighthouseci-dist" | .ci.collect.url |= map(sub("http://localhost"; "http://localhost" + $base_path))' \
+            lighthouserc.json > lighthouserc.runtime.json
+          mv lighthouserc.runtime.json lighthouserc.json
+
+      - name: List URLs for the audit matrix
+        id: urls
+        run: echo "urls=$(jq -c '.ci.collect.url' lighthouserc.json)" >> "$GITHUB_OUTPUT"
+
+      - name: Upload site for auditing
+        uses: actions/upload-artifact@v7
+        with:
+          name: lighthouse-site
+          path: |
+            .lighthouseci-dist
+            lighthouserc.json
+          include-hidden-files: true
+          retention-days: 1
+
+  audit:
+    needs: build
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+
+    strategy:
+      fail-fast: false
+      matrix:
+        url: ${{ fromJson(needs.build.outputs.urls) }}
+
+    steps:
+      - name: Download site
+        uses: actions/download-artifact@v8
+        with:
+          name: lighthouse-site
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '24'
 
       - name: Run Lighthouse CI
-        # @lhci/cli is a devDependency, already installed above — no global
-        # install needed (pnpm add -g would also require PNPM_HOME on runners).
-        run: pnpm exec lhci autorun
+        run: |
+          jq --arg url "${{ matrix.url }}" '.ci.collect.url = [$url]' lighthouserc.json > lighthouserc.one.json
+          npx -y @lhci/cli@0.15.1 autorun --config=./lighthouserc.one.json
         env:
           LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
+
+      - name: Upload reports
+        uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: lighthouse-run-${{ strategy.job-index }}
+          path: .lighthouseci/lhr-*
+          include-hidden-files: true
+          retention-days: 1
+
+  lighthouse:
+    needs: [build, audit]
+    if: ${{ always() && needs.build.result == 'success' }}
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      pull-requests: write
+
+    steps:
+      - name: Collect reports
+        uses: actions/download-artifact@v8
+        with:
+          pattern: lighthouse-run-*
+          path: .lighthouseci
+          merge-multiple: true
 
       - name: Display Lighthouse Results Summary
         if: always()
@@ -152,6 +214,7 @@ jobs:
         with:
           name: lighthouse-reports
           path: .lighthouseci
+          include-hidden-files: true
           retention-days: 30
 
       - name: Comment PR with Lighthouse results
@@ -171,7 +234,7 @@ jobs:
             }
 
             // Find all JSON report files
-            const files = fs.readdirSync(resultsDir).filter(f => f.endsWith('.json'));
+            const files = fs.readdirSync(resultsDir).filter(f => f.startsWith('lhr-') && f.endsWith('.json'));
             if (files.length === 0) {
               console.log('No Lighthouse JSON reports found');
               return;
