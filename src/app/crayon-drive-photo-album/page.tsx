@@ -1,13 +1,14 @@
 import type { Metadata } from 'next'
+import { pageMetadata } from '@/lib/siteMetadata'
 import Link from 'next/link'
 import { assetPath } from '@/lib/assetPath'
-import { siteConfig, siteUrl } from '@/lib/site.config'
+import { siteConfig } from '@/lib/site.config'
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: 'Crayon Drive Photo Album',
   description: `Photos from ${siteConfig.name}'s Crayon Drive.`,
-  alternates: { canonical: siteUrl('/crayon-drive-photo-album') },
-}
+  path: '/crayon-drive-photo-album',
+})
 
 const PHOTO_COUNT = 30
 

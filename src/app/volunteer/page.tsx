@@ -1,11 +1,12 @@
 import type { Metadata } from 'next'
-import { siteConfig, siteUrl } from '@/lib/site.config'
+import { pageMetadata } from '@/lib/siteMetadata'
+import { siteConfig } from '@/lib/site.config'
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: 'Volunteer',
   description: `Become a volunteer with ${siteConfig.name}.`,
-  alternates: { canonical: siteUrl('/volunteer') },
-}
+  path: '/volunteer',
+})
 
 const INTEREST_AREAS = ['Promotion', 'Programs', 'Expertise', 'Other'] as const
 

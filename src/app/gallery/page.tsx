@@ -1,13 +1,14 @@
 import type { Metadata } from 'next'
+import { pageMetadata } from '@/lib/siteMetadata'
 import Link from 'next/link'
 import { assetPath } from '@/lib/assetPath'
-import { siteConfig, siteUrl } from '@/lib/site.config'
+import { siteConfig } from '@/lib/site.config'
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: 'Gallery',
   description: `Photos from ${siteConfig.name}'s programs and communities around Lake Kivu.`,
-  alternates: { canonical: siteUrl('/gallery') },
-}
+  path: '/gallery',
+})
 
 type GalleryItem = {
   label: string

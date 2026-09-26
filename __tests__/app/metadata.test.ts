@@ -48,3 +48,28 @@ describe('Site metadata', () => {
     expect(siteMetadata.icons).toBeDefined()
   })
 })
+
+describe('Page metadata', () => {
+  const ROUTES = [
+    ['donation', '/donation/', 'Donate'],
+    ['volunteer', '/volunteer/', 'Volunteer'],
+    ['contact-us', '/contact-us/', 'Contact Us'],
+    ['gallery', '/gallery/', 'Gallery'],
+    ['crayon-drive-photo-album', '/crayon-drive-photo-album/', 'Crayon Drive Photo Album'],
+    ['privacy-policy', '/privacy-policy/', 'Privacy Policy | Free For Charity'],
+  ] as const
+
+  it.each(ROUTES)('%s has its own Open Graph and Twitter card', async (dir, path, title) => {
+    const { metadata } = await import(`../../src/app/${dir}/page`)
+    const url = `https://freeforcharity.github.io${path}`
+    const fullTitle = `${title} | The Everything Project`
+    expect(metadata.alternates.canonical).toBe(url)
+    expect(metadata.openGraph).toMatchObject({
+      url,
+      title: fullTitle,
+      siteName: 'The Everything Project',
+    })
+    expect(metadata.openGraph.description).toBe(metadata.description)
+    expect(metadata.twitter).toMatchObject({ title: fullTitle, card: 'summary_large_image' })
+  })
+})
