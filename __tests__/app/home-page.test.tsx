@@ -25,6 +25,16 @@ describe('HomePage (app/home-page)', () => {
     }
   })
 
+  it('should render the JVA orphanage video as a click-to-play embed', () => {
+    render(<HomePage />)
+    expect(
+      screen.getByRole('heading', { level: 2, name: 'Christmas at JVA Orphanage' })
+    ).toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: 'Play video: Christmas at JVA Orphanage' })
+    ).toBeInTheDocument()
+  })
+
   it('should render the project gallery preview with a link to the full gallery', () => {
     render(<HomePage />)
     expect(screen.getByRole('heading', { name: 'Our Project Gallery' })).toBeInTheDocument()
