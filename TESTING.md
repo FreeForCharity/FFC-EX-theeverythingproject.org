@@ -410,12 +410,11 @@ Tests run automatically in GitHub Actions with the following workflows:
   5. Upload HTML reports as artifacts
   6. Post results comment on PR (if applicable)
 - Runs independently after deployment
-- Provides performance metrics without blocking deployment
-- Warning thresholds (not hard failures):
-  - Performance: ≥60%
-  - Accessibility: ≥80%
-  - Best Practices: ≥80%
-  - SEO: ≥90%
+- Thresholds (from `lighthouserc.json`):
+  - Performance: ≥55% (warning)
+  - Accessibility: ≥90% (**blocking**)
+  - Best Practices: ≥65% (warning)
+  - SEO: ≥95% (**blocking**)
 
 ### Result Reporting
 
@@ -760,7 +759,7 @@ FFC_Single_Page_Template/
      - Runs on every PR and after deployment
      - Posts detailed score reports in PR comments
      - Tracks median scores from multiple runs
-     - Provides threshold-based warnings
+     - Fails on accessibility or SEO regressions, warns on performance and best practices
      - Uploads detailed HTML reports as artifacts
    - Benefit: Track performance regression over time and get immediate feedback on PRs
 

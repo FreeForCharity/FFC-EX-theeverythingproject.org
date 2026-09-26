@@ -140,6 +140,12 @@ jobs:
       pull-requests: write
 
     steps:
+      - name: Checkout Lighthouse config
+        uses: actions/checkout@v7
+        with:
+          sparse-checkout: lighthouserc.json
+          sparse-checkout-cone-mode: false
+
       - name: Collect reports
         uses: actions/download-artifact@v8
         with:
@@ -270,13 +276,15 @@ jobs:
               return { emoji: '🔴', status: 'Poor' };
             }
 
-            // Thresholds from lighthouserc.json
-            const thresholds = {
-              performance: 0.55,
-              accessibility: 0.9,
-              'best-practices': 0.65,
-              seo: 0.95
-            };
+            const categories = ['performance', 'accessibility', 'best-practices', 'seo'];
+            const assertions = JSON.parse(fs.readFileSync('lighthouserc.json', 'utf8')).ci.assert.assertions;
+            const thresholds = {};
+            const levels = {};
+            for (const [key, [level, opts]] of Object.entries(assertions)) {
+              const category = key.replace(/^categories:/, '');
+              thresholds[category] = opts.minScore;
+              levels[category] = level;
+            }
 
             // Create comment header
             let comment = '## 🔦 Lighthouse CI Results\n\n';
@@ -285,6 +293,7 @@ jobs:
 
             // Process each URL
             let allPassed = true;
+            let anyBlocking = false;
             for (const [url, reports] of Object.entries(reportsByUrl)) {
               let urlPath, pageName;
               try {
@@ -300,8 +309,6 @@ jobs:
               comment += `### 📄 ${pageName}\n\n`;
               comment += '| Category | Score | Status | Threshold |\n';
               comment += '|----------|-------|--------|----------|\n';
-
-              const categories = ['performance', 'accessibility', 'best-practices', 'seo'];
               
               for (const category of categories) {
                 const scores = reports.map(r => r.categories[category]?.score ?? 0);
@@ -312,12 +319,13 @@ jobs:
                 const passed = medianScore >= (thresholds[category] || 0);
                 
                 if (!passed) allPassed = false;
+                if (!passed && levels[category] === 'error') anyBlocking = true;
                 
                 const categoryName = category.split('-').map(w => 
                   w.charAt(0).toUpperCase() + w.slice(1)
                 ).join(' ');
                 
-                const passIcon = passed ? '✅' : '⚠️';
+                const passIcon = passed ? '✅' : levels[category] === 'error' ? '❌' : '⚠️';
                 comment += `| ${display.emoji} ${categoryName} | **${percentage}%** | ${display.status} ${passIcon} | ≥${threshold}% |\n`;
               }
               
@@ -330,7 +338,9 @@ jobs:
               comment += '✅ **All categories meet or exceed the configured thresholds!**\n\n';
             } else {
               comment += '⚠️ **Some categories are below the configured thresholds.**\n\n';
-              comment += 'Categories below threshold are marked with ⚠️. These are warning levels, not failures.\n\n';
+              comment += anyBlocking
+                ? 'Categories marked ❌ are blocking and fail this check. Categories marked ⚠️ are warnings only.\n\n'
+                : 'Categories below threshold are marked with ⚠️. These are warning levels, not failures.\n\n';
             }
 
             // Add helpful links
@@ -339,10 +349,11 @@ jobs:
             comment += '- 🟡 **Needs Improvement** (50-89%): Some issues to address\n';
             comment += '- 🔴 **Poor** (0-49%): Significant problems\n\n';
             comment += '**Thresholds:**\n';
-            comment += '- Performance: ≥55% (warn)\n';
-            comment += '- Accessibility: ≥90% (warn)\n';
-            comment += '- Best Practices: ≥65% (warn)\n';
-            comment += '- SEO: ≥95% (warn)\n\n';
+            for (const category of categories) {
+              const name = category.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+              comment += `- ${name}: ≥${Math.round(thresholds[category] * 100)}% (${levels[category]})\n`;
+            }
+            comment += '\n';
             comment += '📥 Download the detailed HTML reports from the [workflow artifacts](';
             comment += `${context.payload.repository.html_url}/actions/runs/${context.runId}) for in-depth analysis.\n\n`;
             comment += '📖 Learn more about [Lighthouse scoring](https://developer.chrome.com/docs/lighthouse/performance/performance-scoring/)';
