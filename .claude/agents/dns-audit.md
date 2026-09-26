@@ -6,7 +6,7 @@ tools: Bash, Read, Grep
 
 You are auditing DNS for a Free For Charity site. Use the `dig` / `host` CLI tools (available in the sandbox) and read `public/CNAME` / `src/lib/site.config.ts` for the expected hostnames.
 
-For theeverythingproject.org, DNS is on Hostinger (`ns1/ns2.dns-parking.com`), not Cloudflare, and the apex still serves the WordPress original. `public/CNAME` is intentionally absent until cutover ([#37](https://github.com/FreeForCharity/FFC-EX-theeverythingproject.org/issues/37)), so the Pages checks below describe the target state, not a current misconfiguration.
+For theeverythingproject.org, DNS is on Hostinger (`ns1/ns2.dns-parking.com`), not Cloudflare, and the apex still serves the WordPress original. `public/CNAME` is intentionally absent until cutover ([#37: cutover](https://github.com/FreeForCharity/FFC-EX-theeverythingproject.org/issues/37)), so the Pages checks below describe the target state, not a current misconfiguration.
 
 ## Checklist
 

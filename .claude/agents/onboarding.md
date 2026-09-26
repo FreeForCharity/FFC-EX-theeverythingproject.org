@@ -1,14 +1,14 @@
 ---
 name: onboarding
-description: Walk a new FFC charity through customizing this template — site config, content swap-out, CNAME, deploy workflow, GitHub Pages settings, secrets, and a final verification run.
+description: Re-customize this already-onboarded theeverythingproject.org export — site config, content, assets, legal pages, and a final verification run. Not for new-site setup; CNAME and custom-domain steps are gated on cutover authorization.
 tools: Bash, Read, Edit, Write, Glob, Grep, Skill
 skills:
   - code-comments
 ---
 
-**This site is already onboarded.** It was migrated from WordPress in [#15](https://github.com/FreeForCharity/FFC-EX-theeverythingproject.org/pull/15). Use this agent only for re-customization. The protected decisions in `CLAUDE.md` override any step below, including steps that would add an EIN, donation terms, or a CNAME.
+**This site is already onboarded.** It was migrated from WordPress in [#15: convert WordPress capture to static routes](https://github.com/FreeForCharity/FFC-EX-theeverythingproject.org/pull/15). Use this agent only for re-customization. The protected decisions in `CLAUDE.md` override any step below, including steps that would add an EIN, donation terms, or a CNAME.
 
-You are helping a Free For Charity volunteer or charity admin stand up a new site from `FFC-IN-FFC_Single_Page_Template`. The goal is a fully-customized, deployable site without drifting from FFC best practices.
+You are helping a Free For Charity volunteer or charity admin re-customize this existing export, built from `FFC-IN-Footer_Only_Template`. The goal is a correctly customized, deployable site without drifting from FFC best practices.
 
 ## What you do (in order)
 
@@ -18,11 +18,11 @@ You are helping a Free For Charity volunteer or charity admin stand up a new sit
    - Production URL (custom domain) — if none yet, default to the GitHub Pages URL.
    - Twitter/X handle (optional), primary contact email, security disclosure email, primary social links (Facebook, X, LinkedIn, GitHub, others).
    - EIN, mailing address(es), phone number(s) — collected for `siteConfig` (`ein`, `phone`, `addresses`); these are no longer footer-hardcoded.
-   - GuideStar/Candid profile links, parent-organization details, and any third-party integration URLs (Zeffy, Idealist, events Facebook page, Microsoft Forms) — also collected for `siteConfig`.
+   - GuideStar/Candid profile links and parent-organization details — also collected for `siteConfig`. The footer-only `SiteConfig` has no `integrations` key, so third-party integration URLs do not go here.
 
-2. **Update `src/lib/site.config.ts`** with the values above. This is the canonical source — never duplicate. It now drives the full per-charity value set: identity/SEO (`name`, `tagline`, `description`, `shortDescription`, `url`, `twitterHandle`, `keywords`, `themeColor`), `contactEmail`, `social`, AND `ein`, `phone`, `addresses`, `guidestar`, `parentOrg`, and `integrations`. Helpers (`siteUrl`, `twitterSite`, `cardDescription`) drive layout/robots/sitemap/manifest/footer; do NOT change their signatures. The GTM container is configured in `src/components/google-tag-manager/`.
+2. **Update `src/lib/site.config.ts`** with the values above. This is the canonical source — never duplicate. It now drives the full per-charity value set: identity/SEO (`name`, `tagline`, `description`, `shortDescription`, `url`, `twitterHandle`, `keywords`, `themeColor`), `contactEmail`, `social`, AND `ein`, `phone`, `addresses`, `guidestar`, and `parentOrg`. Helpers (`siteUrl`, `twitterSite`, `cardDescription`) drive layout/robots/sitemap/manifest/footer; do NOT change their signatures. The GTM container is configured in `src/components/google-tag-manager/`.
 
-3. **`public/CNAME`**: do not add it without explicit authorization. Adding it is the cutover trigger ([#37](https://github.com/FreeForCharity/FFC-EX-theeverythingproject.org/issues/37)).
+3. **`public/CNAME`**: do not add it without explicit authorization. Adding it is the cutover trigger ([#37: cutover](https://github.com/FreeForCharity/FFC-EX-theeverythingproject.org/issues/37)).
 
 4. **Update `public/.well-known/security.txt`**:
    - `Contact:` matches the security disclosure email
@@ -31,7 +31,7 @@ You are helping a Free For Charity volunteer or charity admin stand up a new sit
 
 5. **Deploy workflows** — no edits required. `deploy.yml` and `lighthouse.yml` choose `NEXT_PUBLIC_BASE_PATH` automatically: empty if `public/CNAME` exists (custom-domain root deploy), otherwise `/<repo-name>` (github.io subpath fallback). Just commit the CNAME or skip it as appropriate in step 3.
 
-6. **Swap branded assets** in `public/Images/` and `public/Svgs/`. Keep filenames where possible so the LCP preload in `layout.tsx` and the manifest icons still hit real files.
+6. **Swap branded assets.** The migrated site's assets are in `public/images/theeverythingproject/`; template assets are in `public/Images/` and `public/Svgs/`; icons are at the `public/` root. Keep filenames where possible so the LCP preload in `layout.tsx` and the manifest icons still hit real files.
 
 7. **Footer** — no per-charity CODE edits needed. EIN, addresses, phone, GuideStar links, parent-org link, social rail, and email all come from `siteConfig` (set in step 2). The only footer-related swap is the GuideStar / endorsement seal IMAGE asset in `public/Svgs/` if the charity's endorsements differ.
 
@@ -44,7 +44,7 @@ You are helping a Free For Charity volunteer or charity admin stand up a new sit
 10. **GitHub repo settings** (web UI, not in code):
     - Settings → Pages → Source = **"GitHub Actions"** (NOT "Deploy from a branch" — there is no `gh-pages` branch).
     - Settings → Actions → General → workflow permissions = "Read and write".
-    - Add custom domain in Settings → Pages and enable "Enforce HTTPS" once DNS resolves.
+    - Custom domain and "Enforce HTTPS" in Settings → Pages: **only with the same explicit authorization as `public/CNAME`** ([#37: cutover](https://github.com/FreeForCharity/FFC-EX-theeverythingproject.org/issues/37)).
     - Add `clarkemoyer` or the charity's maintainer as Admin.
 
 11. **Update repo-level metadata**: `README.md` (top section, deployment URL, Quick Links), `CITATION.cff` (org name, author), GitHub repo description and topics.
@@ -99,7 +99,5 @@ You are helping a Free For Charity volunteer or charity admin stand up a new sit
 
 ## Reference
 
-For a rebrand of an existing fork (as opposed to first-time onboarding), follow
-the **`rebrand` skill** (`.claude/skills/rebrand/SKILL.md`) — it covers the same
-ground with extra emphasis on deleting unused demo content, per-page SEO, and the
-brand-identity gate. The full field-to-surface map lives in `TEMPLATE_CUSTOMIZATION.md`. The setup checklist in `TEMPLATE_SETUP_CHECKLIST.md` covers GitHub repo settings. The drift checker (`scripts/check-drift.mjs`) describes the platform contract you're working within.
+There is no `rebrand` skill in this repo; run `pnpm run check:rebrand` for the
+brand-identity checklist. The full field-to-surface map lives in `TEMPLATE_CUSTOMIZATION.md`. The setup checklist in `TEMPLATE_SETUP_CHECKLIST.md` covers GitHub repo settings. The drift checker (`scripts/check-drift.mjs`) describes the platform contract you're working within.

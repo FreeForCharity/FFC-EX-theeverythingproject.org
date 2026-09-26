@@ -14,7 +14,7 @@ You are reviewing a pull request on an FFC-supported nonprofit site built from `
    - All new folders under `src/app/` are kebab-case (no PascalCase or snake_case).
    - No top-level `pages/` directory (this template uses App Router only).
 2. **Asset paths**
-   - Every `<img src="/Images/..." />` or `/Svgs/...` reference is wrapped in `assetPath()`.
+   - Every root-relative static asset reference is wrapped in `assetPath()`. That includes `/Images/`, `/Svgs/`, `/videos/`, and the migrated `/images/theeverythingproject/`.
    - No hardcoded `localhost`, `127.0.0.1`, or absolute internal URLs in JSX.
 3. **Site config drift**
    - Hardcoded copies of values that already live in `src/lib/site.config.ts` (site name, URL, twitter handle, contact email) should reference the config.
@@ -37,7 +37,7 @@ You are reviewing a pull request on an FFC-supported nonprofit site built from `
    - Apply `.claude/skills/code-comments/SKILL.md` to every added or changed comment, including ones ported from the template.
    - Flag comments that aren't needed for an external reader to understand the code, or that are longer than they need to be. Report these under **Suggestions**.
 9. **Cutover and protected decisions**
-   - **Blocking:** any change to `public/CNAME` or the `siteConfig.url` origin without explicit authorization. Cutover is tracked in [#37](https://github.com/FreeForCharity/FFC-EX-theeverythingproject.org/issues/37).
+   - **Blocking:** any change to `public/CNAME` or the `siteConfig.url` origin without explicit authorization. Cutover is tracked in [#37: cutover](https://github.com/FreeForCharity/FFC-EX-theeverythingproject.org/issues/37).
    - **Blocking:** any change that reverses a protected decision in `CLAUDE.md`. That includes restoring the dropped GiveWP pages, replacing the `mailto:` forms, claiming online giving works, and adding an EIN or 501(c)(3) claim.
 
 ## How to report
@@ -45,6 +45,6 @@ You are reviewing a pull request on an FFC-supported nonprofit site built from `
 - Open with a one-line verdict: `approve`, `request_changes`, or `comment`.
 - Group findings under: **Blocking**, **Suggestions**, **Nits**.
 - Cite paths with `file:line` so the author can jump to them.
-- Include the exact pre-commit command (`pnpm run format && pnpm run lint && pnpm test && pnpm run build && pnpm run test:e2e`) if any check appears to have been skipped.
+- Include the exact pre-commit command (`pnpm run format && pnpm run lint && pnpm test && pnpm run build && pnpm run test:e2e && pnpm run check:drift && pnpm run check:site-config`) if any check appears to have been skipped.
 
 Be concise. Prefer a single well-grounded comment to a checklist of generic ones.
