@@ -136,11 +136,12 @@ export const siteConfig: SiteConfig = {
     'The Everything Project implements essential humanitarian aid, education, farming, and infrastructure programs for vulnerable and at-risk people on the Isle Idjwi and around Lake Kivu in the Democratic Republic of the Congo.',
   shortDescription:
     'Humanitarian aid, education, and development programs for vulnerable communities on the Isle Idjwi, DR Congo.',
-  // No custom domain / public/CNAME at this migration phase — the site
-  // deploys to the default GitHub Pages subpath. sitePath()/siteUrl() below
-  // append the repo-name basePath automatically, so `url` stays the bare
-  // Pages origin (no path segment) to avoid doubling it.
-  url: 'https://freeforcharity.github.io',
+  // Custom-domain cutover staged: public/CNAME now carries
+  // theeverythingproject.org, so this must move with it. Bare origin ONLY:
+  // do NOT include a repo path here, or every siteUrl() call doubles it.
+  // This PR is held open (not merged) — the value ships live only once a
+  // human merges the staged cutover.
+  url: 'https://theeverythingproject.org',
   // Found on the live source site (twitter.com/TheEver09371964).
   twitterHandle: '@TheEver09371964',
   // Found in the live site's Forminator contact form target / footer.

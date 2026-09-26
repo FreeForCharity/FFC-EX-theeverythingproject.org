@@ -22,7 +22,7 @@ describe('siteConfig contract', () => {
     expect(siteConfig).toMatchObject({
       name: 'The Everything Project',
       tagline: 'Humanitarian Aid for Isle Idjwi',
-      url: 'https://freeforcharity.github.io',
+      url: 'https://theeverythingproject.org',
       twitterHandle: '@TheEver09371964',
       contactEmail: 'everythingprojectusa@gmail.com',
       themeColor: '#ff6900',
@@ -79,10 +79,10 @@ describe('siteConfig contract', () => {
     // canonicalPath() owns the trailingSlash policy; siteUrl() applies both.
     expect(canonicalPath('/')).toBe('/')
     expect(canonicalPath('/privacy-policy')).toBe('/privacy-policy/')
-    expect(siteUrl('/')).toBe('https://freeforcharity.github.io/')
-    expect(siteUrl('/privacy-policy')).toBe('https://freeforcharity.github.io/privacy-policy/')
+    expect(siteUrl('/')).toBe('https://theeverythingproject.org/')
+    expect(siteUrl('/privacy-policy')).toBe('https://theeverythingproject.org/privacy-policy/')
     // Files are served verbatim and must not gain a slash.
-    expect(siteUrl('/sitemap.xml')).toBe('https://freeforcharity.github.io/sitemap.xml')
+    expect(siteUrl('/sitemap.xml')).toBe('https://theeverythingproject.org/sitemap.xml')
     expect(() => siteUrl('privacy-policy')).toThrow(TypeError)
     expect(() => siteUrl('//example.com')).toThrow(TypeError)
     expect(() => canonicalPath('//example.com')).toThrow(TypeError)
@@ -93,12 +93,12 @@ describe('siteConfig contract', () => {
 
     expect(sitePath('/')).toBe('/FFC-EX-theeverythingproject.org/')
     expect(sitePath('/privacy-policy')).toBe('/FFC-EX-theeverythingproject.org/privacy-policy')
-    expect(siteUrl('/')).toBe('https://freeforcharity.github.io/FFC-EX-theeverythingproject.org/')
+    expect(siteUrl('/')).toBe('https://theeverythingproject.org/FFC-EX-theeverythingproject.org/')
     expect(siteUrl('/privacy-policy')).toBe(
-      'https://freeforcharity.github.io/FFC-EX-theeverythingproject.org/privacy-policy/'
+      'https://theeverythingproject.org/FFC-EX-theeverythingproject.org/privacy-policy/'
     )
     expect(siteUrl('/sitemap.xml')).toBe(
-      'https://freeforcharity.github.io/FFC-EX-theeverythingproject.org/sitemap.xml'
+      'https://theeverythingproject.org/FFC-EX-theeverythingproject.org/sitemap.xml'
     )
   })
 
