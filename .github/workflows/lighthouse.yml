@@ -56,7 +56,7 @@ jobs:
           fi
 
       - name: Build site
-        run: pnpm run build
+        run: pnpm run build || (sleep 15 && pnpm run build)
         env:
           NEXT_PUBLIC_BASE_PATH: ${{ steps.basepath.outputs.value }}
 

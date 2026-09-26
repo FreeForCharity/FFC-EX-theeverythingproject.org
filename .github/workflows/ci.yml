@@ -50,7 +50,7 @@ jobs:
           CI: true
 
       - name: Build Next.js site
-        run: pnpm run build
+        run: pnpm run build || (sleep 15 && pnpm run build)
         # Note: Do NOT set NEXT_PUBLIC_BASE_PATH here
         # The basePath is only needed for actual GitHub Pages deployment (in deploy.yml)
         # E2E tests need to run against a build without basePath since the test server
@@ -144,7 +144,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Build Next.js site
-        run: pnpm run build
+        run: pnpm run build || (sleep 15 && pnpm run build)
         # Keep this build base-path-free like build-and-unit so the local
         # link-check server can resolve clean URLs the same way GitHub Pages does.
 

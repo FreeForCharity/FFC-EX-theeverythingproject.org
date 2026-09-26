@@ -92,7 +92,7 @@ jobs:
           fi
 
       - name: Build with Next.js
-        run: pnpm run build
+        run: pnpm run build || (sleep 15 && pnpm run build)
         env:
           # See "Determine base path" above. Set automatically based on
           # whether public/CNAME exists.
