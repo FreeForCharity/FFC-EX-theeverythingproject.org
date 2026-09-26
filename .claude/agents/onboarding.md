@@ -15,7 +15,7 @@ You are helping a Free For Charity volunteer or charity admin re-customize this 
 1. **Confirm scope.** Ask the charity for:
    - Display name and short tagline (one sentence each).
    - SEO description (1–2 sentences) and a shorter card description for OG / Twitter previews.
-   - Production URL (custom domain) — if none yet, default to the GitHub Pages URL.
+   - Production URL: do not change `siteConfig.url` without cutover authorization. Until then it stays the bare `https://freeforcharity.github.io` origin (no subpath; `basePath` adds it).
    - Twitter/X handle (optional), primary contact email, security disclosure email, primary social links (Facebook, X, LinkedIn, GitHub, others).
    - EIN, mailing address(es), phone number(s) — collected for `siteConfig` (`ein`, `phone`, `addresses`); these are no longer footer-hardcoded.
    - GuideStar/Candid profile links and parent-organization details — also collected for `siteConfig`. The footer-only `SiteConfig` has no `integrations` key, so third-party integration URLs do not go here.
