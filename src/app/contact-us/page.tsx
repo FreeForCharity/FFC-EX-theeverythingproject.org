@@ -1,11 +1,12 @@
 import type { Metadata } from 'next'
-import { siteConfig, siteUrl } from '@/lib/site.config'
+import { pageMetadata } from '@/lib/siteMetadata'
+import { siteConfig } from '@/lib/site.config'
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: 'Contact Us',
   description: `Get in touch with ${siteConfig.name}.`,
-  alternates: { canonical: siteUrl('/contact-us') },
-}
+  path: '/contact-us',
+})
 
 export default function ContactUsPage() {
   return (

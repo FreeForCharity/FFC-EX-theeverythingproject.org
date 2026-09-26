@@ -1,12 +1,11 @@
 import type { Metadata } from 'next'
-import { siteUrl } from '@/lib/site.config'
+import { pageMetadata } from '@/lib/siteMetadata'
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: 'Terms of Service | Free For Charity',
   description: 'Terms of Service for Free For Charity website',
-  // Own canonical: without it Next inherits the layout's, which points at the home page.
-  alternates: { canonical: siteUrl('/terms-of-service') },
-}
+  path: '/terms-of-service',
+})
 
 export default function TermsOfService() {
   return (

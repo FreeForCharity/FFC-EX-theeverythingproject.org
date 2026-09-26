@@ -1,12 +1,13 @@
 import type { Metadata } from 'next'
+import { pageMetadata } from '@/lib/siteMetadata'
 import Link from 'next/link'
-import { siteConfig, siteUrl } from '@/lib/site.config'
+import { siteConfig } from '@/lib/site.config'
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: 'Donate',
   description: `Support ${siteConfig.name}'s humanitarian aid and development programs on the Isle Idjwi.`,
-  alternates: { canonical: siteUrl('/donation') },
-}
+  path: '/donation',
+})
 
 export default function DonationPage() {
   const subject = encodeURIComponent(`Donation to ${siteConfig.name}`)
