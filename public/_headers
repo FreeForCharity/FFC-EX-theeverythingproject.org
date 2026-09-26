@@ -48,9 +48,9 @@
   Cache-Control: public, max-age=31536000, immutable
 
 # Static assets are versioned by deploy; cache for a day.
-/Images/*
+/images/*
   Cache-Control: public, max-age=86400, must-revalidate
-/Svgs/*
+/svgs/*
   Cache-Control: public, max-age=86400, must-revalidate
 /videos/*
   Cache-Control: public, max-age=86400, must-revalidate

@@ -49,7 +49,7 @@ src/
   components/     --> Reusable UI components
   data/           --> Content modules (.ts) and JSON data files
   lib/            --> Utilities (including assetPath helper)
-public/           --> Static assets (Images/, Svgs/, fonts)
+public/           --> Static assets (images/, svgs/, fonts)
 ```
 
 **Route folders use kebab-case.** This is required for SEO. Use `about-us/`, not `aboutUs/`.
@@ -74,10 +74,10 @@ public/           --> Static assets (Images/, Svgs/, fonts)
      )
    }
    ```
-3. Add any images to `public/Images/` and reference them with `assetPath()`:
+3. Add any images to `public/images/` and reference them with `assetPath()`:
    ```tsx
    import { assetPath } from '@/lib/assetPath'
-   ;<img src={assetPath('/Images/volunteers.jpg')} alt="Volunteers" />
+   ;<img src={assetPath('/images/volunteers.jpg')} alt="Volunteers" />
    ```
 4. Run the pre-commit checklist: `pnpm run format && pnpm run lint && pnpm test && pnpm run build`
 
@@ -115,7 +115,7 @@ The site deploys to `https://freeforcharity.github.io/FFC_Single_Page_Template/`
 ```tsx
 // Always use assetPath() for images and static assets
 import { assetPath } from '@/lib/assetPath'
-;<img src={assetPath('/Images/logo.png')} alt="Logo" />
+;<img src={assetPath('/images/logo.png')} alt="Logo" />
 ```
 
 Never hardcode absolute paths to assets. They will break on one of the two deployment targets.

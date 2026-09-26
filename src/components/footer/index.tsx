@@ -50,7 +50,7 @@ const Footer: React.FC = () => {
                 aria-label={`View ${siteConfig.name} GuideStar Profile`}
               >
                 <img
-                  src={assetPath('/Svgs/footerImage.svg')}
+                  src={assetPath('/svgs/footerImage.svg')}
                   alt="GuideStar Platinum Seal of Transparency"
                 />
               </a>

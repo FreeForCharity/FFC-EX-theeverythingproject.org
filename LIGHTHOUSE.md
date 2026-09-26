@@ -288,7 +288,7 @@ We recently completed a comprehensive image optimization effort that achieved:
 
    ```tsx
    // In layout.tsx <head>
-   <link rel="preload" as="image" href="/Images/hero.webp" fetchPriority="high" />
+   <link rel="preload" as="image" href="/images/hero.webp" fetchPriority="high" />
    ```
 
 4. **Add sizes attribute** for responsive images

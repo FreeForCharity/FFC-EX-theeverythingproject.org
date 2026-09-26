@@ -1,3 +1,5 @@
+import { assetPath } from '@/lib/assetPath'
+
 export type GalleryAlbum = {
   slug: string
   label: string
@@ -14,7 +16,7 @@ const album = (slug: string, label: string, cover: string, photoCount: number): 
   cover,
   photoCount,
   href: `/gallery/${slug}`,
-  photoDir: `/images/theeverythingproject/albums/${slug}`,
+  photoDir: assetPath(`/images/theeverythingproject/albums/${slug}`),
 })
 
 export const CRAYON_DRIVE_ALBUM: GalleryAlbum = {
@@ -23,8 +25,8 @@ export const CRAYON_DRIVE_ALBUM: GalleryAlbum = {
   cover: 'crayon-drive.jpg',
   photoCount: 35,
   href: '/crayon-drive-photo-album',
-  photoDir: '/images/theeverythingproject/crayon-drive',
-  fullDir: '/images/theeverythingproject/crayon-drive/full',
+  photoDir: assetPath('/images/theeverythingproject/crayon-drive'),
+  fullDir: assetPath('/images/theeverythingproject/crayon-drive/full'),
 }
 
 export const GALLERY_ALBUMS: readonly GalleryAlbum[] = [
