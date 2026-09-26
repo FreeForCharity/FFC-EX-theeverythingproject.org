@@ -29,7 +29,7 @@ const LiteYouTubeEmbed: React.FC<LiteYouTubeEmbedProps> = ({ videoId, title, thu
           type="button"
           onClick={() => setPlaying(true)}
           aria-label={`Play video: ${title}`}
-          className="group absolute inset-0 h-full w-full focus-visible:outline focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-[#ff6900]"
+          className="group absolute inset-0 h-full w-full focus-visible:outline focus-visible:outline-4 focus-visible:outline-offset-[-6px] focus-visible:outline-[#ff6900]"
         >
           <img
             src={assetPath(thumbnail)}
