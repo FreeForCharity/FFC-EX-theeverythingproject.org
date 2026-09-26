@@ -3,10 +3,11 @@ import { routes } from '../src/app/sitemap'
 
 /**
  * Every image, font, stylesheet and media file must be served by the site
- * itself. Only analytics beacons and the PayPal SDK may load from elsewhere.
+ * itself. Only analytics beacons, the PayPal SDK and the YouTube thumbnail
+ * shown after a click may load from elsewhere, matching the CSP.
  */
 const THIRD_PARTY_HOSTS =
-  /(^|\.)(googletagmanager\.com|google-analytics\.com|doubleclick\.net|clarity\.ms|bing\.com|facebook\.net|facebook\.com|paypal\.com|paypalobjects\.com)$/
+  /(^|\.)(googletagmanager\.com|google-analytics\.com|google\.com|ytimg\.com|doubleclick\.net|clarity\.ms|bing\.com|facebook\.net|facebook\.com|paypal\.com|paypalobjects\.com)$/
 
 const ASSET_TYPES = new Set(['image', 'font', 'stylesheet', 'media', 'script'])
 
