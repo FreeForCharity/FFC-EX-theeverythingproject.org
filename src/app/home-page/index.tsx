@@ -33,6 +33,7 @@ const PROGRAM_AREAS: readonly ProgramArea[] = [
 type GalleryPreview = {
   label: string
   image: string
+  href?: string
 }
 
 const GALLERY_PREVIEW: readonly GalleryPreview[] = [
@@ -41,7 +42,7 @@ const GALLERY_PREVIEW: readonly GalleryPreview[] = [
   { label: 'Minova unrecognized refugee camp', image: 'minova.jpg' },
   { label: 'Don Bosco', image: 'don-bosco.jpg' },
   { label: 'Mweso', image: 'mweso.jpg' },
-  { label: 'Crayon Drive', image: 'crayon-drive.jpg' },
+  { label: 'Crayon Drive', image: 'crayon-drive.jpg', href: '/crayon-drive-photo-album' },
 ]
 
 const HomePage: React.FC = () => {
@@ -128,19 +129,31 @@ const HomePage: React.FC = () => {
             A look at the communities and programs we work with on Idjwi and around Lake Kivu.
           </p>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-            {GALLERY_PREVIEW.map((item) => (
-              <figure key={item.label} className="overflow-hidden rounded-lg">
-                <img
-                  src={assetPath(`/images/theeverythingproject/gallery/${item.image}`)}
-                  alt={item.label}
-                  className="w-full h-40 object-cover"
-                  loading="lazy"
-                />
-                <figcaption className="mt-2 text-[14px] font-[600] text-[#333] text-center">
-                  {item.label}
-                </figcaption>
-              </figure>
-            ))}
+            {GALLERY_PREVIEW.map((item) => {
+              const figure = (
+                <figure className="overflow-hidden rounded-lg">
+                  <img
+                    src={assetPath(`/images/theeverythingproject/gallery/${item.image}`)}
+                    alt={item.label}
+                    className="w-full h-40 object-cover"
+                    loading="lazy"
+                  />
+                  <figcaption className="mt-2 text-[14px] font-[600] text-[#333] text-center">
+                    {item.label}
+                    {item.href && (
+                      <span className="block text-[13px] text-[#ff6900]">View album &rarr;</span>
+                    )}
+                  </figcaption>
+                </figure>
+              )
+              return item.href ? (
+                <Link key={item.label} href={item.href} className="block rounded-lg">
+                  {figure}
+                </Link>
+              ) : (
+                <div key={item.label}>{figure}</div>
+              )
+            })}
           </div>
           <div className="mt-10 text-center">
             <Link

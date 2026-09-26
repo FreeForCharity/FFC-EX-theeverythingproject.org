@@ -43,4 +43,12 @@ describe('HomePage (app/home-page)', () => {
       '/gallery'
     )
   })
+
+  it('should link the Crayon Drive preview to its photo album', () => {
+    render(<HomePage />)
+    expect(screen.getByRole('link', { name: /Crayon Drive/ })).toHaveAttribute(
+      'href',
+      '/crayon-drive-photo-album'
+    )
+  })
 })
