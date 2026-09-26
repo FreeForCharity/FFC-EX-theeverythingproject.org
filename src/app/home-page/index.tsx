@@ -75,7 +75,7 @@ const HomePage: React.FC = () => {
             programs on Idjwi.
           </p>
           <p className="text-[16px] leading-[28px] text-[#444]">
-            Programs on Idjwi will include, schools, farms, infrastructure and development for
+            Programs on Idjwi will include schools, farms, infrastructure and development for
             quality of life. Until funding is in place for major programs we intend to continue to
             do what we can for the vulnerable individuals and their needs while networking with
             other organizations and potential aid for them.

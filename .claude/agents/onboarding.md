@@ -31,7 +31,7 @@ You are helping a Free For Charity volunteer or charity admin re-customize this 
 
 5. **Deploy workflows** — no edits required. `deploy.yml` and `lighthouse.yml` choose `NEXT_PUBLIC_BASE_PATH` automatically: empty if `public/CNAME` exists (custom-domain root deploy), otherwise `/<repo-name>` (github.io subpath fallback). Just commit the CNAME or skip it as appropriate in step 3.
 
-6. **Swap branded assets.** The migrated site's assets are in `public/images/theeverythingproject/`; template assets are in `public/images/` and `public/svgs/`; icons are at the `public/` root. Keep filenames where possible so the LCP preload in `layout.tsx` and the manifest icons still hit real files.
+6. **Swap branded assets.** The migrated site's assets are in `public/images/theeverythingproject/`; template assets are in `public/images/` and `public/svgs/`; icons are at the `public/` root. Keep icon filenames where possible so the manifest icons still hit real files.
 
 7. **Footer** — no per-charity CODE edits needed. EIN, addresses, phone, GuideStar links, parent-org link, social rail, and email all come from `siteConfig` (set in step 2). The only footer-related swap is the GuideStar / endorsement seal IMAGE asset in `public/svgs/` if the charity's endorsements differ.
 
