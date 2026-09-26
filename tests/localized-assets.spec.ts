@@ -7,7 +7,7 @@ import { routes } from '../src/app/sitemap'
  * shown after a click may load from elsewhere, matching the CSP.
  */
 const THIRD_PARTY_HOSTS =
-  /(^|\.)(googletagmanager\.com|google-analytics\.com|google\.com|ytimg\.com|doubleclick\.net|clarity\.ms|bing\.com|facebook\.net|facebook\.com|paypal\.com|paypalobjects\.com)$/
+  /(^|\.)(googletagmanager\.com|google-analytics\.com|doubleclick\.net|clarity\.ms|bing\.com|facebook\.net|facebook\.com|paypal\.com|paypalobjects\.com)$|^(www\.google\.com|i\.ytimg\.com)$/
 
 const ASSET_TYPES = new Set(['image', 'font', 'stylesheet', 'media', 'script'])
 
