@@ -10,6 +10,7 @@ export default function PhotoAlbum({ photos }: { photos: readonly Photo[] }) {
   const [openIndex, setOpenIndex] = useState<number | null>(null)
   const closeRef = useRef<HTMLButtonElement>(null)
   const openerRef = useRef<HTMLButtonElement | null>(null)
+  const dialogRef = useRef<HTMLDivElement>(null)
 
   const close = useCallback(() => {
     setOpenIndex(null)
@@ -28,6 +29,20 @@ export default function PhotoAlbum({ photos }: { photos: readonly Photo[] }) {
       if (e.key === 'Escape') close()
       else if (e.key === 'ArrowRight') step(1)
       else if (e.key === 'ArrowLeft') step(-1)
+      else if (e.key === 'Tab') {
+        const controls = dialogRef.current?.querySelectorAll('button')
+        if (!controls?.length) return
+        const first = controls[0]
+        const last = controls[controls.length - 1]
+        const inside = dialogRef.current?.contains(document.activeElement)
+        if (e.shiftKey && (document.activeElement === first || !inside)) {
+          e.preventDefault()
+          last.focus()
+        } else if (!e.shiftKey && (document.activeElement === last || !inside)) {
+          e.preventDefault()
+          first.focus()
+        }
+      }
     }
     document.addEventListener('keydown', onKey)
     document.body.style.overflow = 'hidden'
@@ -65,6 +80,7 @@ export default function PhotoAlbum({ photos }: { photos: readonly Photo[] }) {
 
       {current && openIndex !== null && (
         <div
+          ref={dialogRef}
           role="dialog"
           aria-modal="true"
           aria-label={current.alt}

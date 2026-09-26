@@ -46,6 +46,20 @@ describe('PhotoAlbum component', () => {
   })
 })
 
+describe('PhotoAlbum focus trap', () => {
+  it('wraps Tab and Shift+Tab within the lightbox controls', () => {
+    render(<PhotoAlbum photos={photos} />)
+    fireEvent.click(screen.getByRole('button', { name: 'Open Test photo 1' }))
+    const close = screen.getByRole('button', { name: 'Close' })
+    const next = screen.getByRole('button', { name: 'Next photo' })
+    next.focus()
+    fireEvent.keyDown(document, { key: 'Tab' })
+    expect(close).toHaveFocus()
+    fireEvent.keyDown(document, { key: 'Tab', shiftKey: true })
+    expect(next).toHaveFocus()
+  })
+})
+
 describe('gallery albums', () => {
   it('ships every photo each album references', () => {
     for (const album of GALLERY_ALBUMS) {
