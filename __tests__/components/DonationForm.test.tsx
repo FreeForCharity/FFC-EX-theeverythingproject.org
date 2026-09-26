@@ -4,6 +4,7 @@ import { axe } from 'jest-axe'
 
 import DonationForm, {
   AMOUNT_ERROR,
+  AMOUNT_TOO_LARGE,
   buildOrder,
   parseAmount,
   validate,
@@ -40,6 +41,7 @@ const renderForm = async () => {
       clientId="test-id"
       currency="USD"
       charityName="Test Charity"
+      emailHref="mailto:give@example.org"
       fallback={fallback}
     />
   )
@@ -78,6 +80,14 @@ describe('donation helpers', () => {
     expect(parseAmount('0')).toBeNull()
     expect(parseAmount('1.234')).toBeNull()
     expect(parseAmount('abc')).toBeNull()
+  })
+
+  it('rejects amounts too large to be real instead of passing Infinity to PayPal', () => {
+    expect(parseAmount('999,999,999.99')).toBe('999999999.99')
+    expect(parseAmount('1000000000')).toBeNull()
+    expect(parseAmount('9'.repeat(400))).toBeNull()
+    expect(validate({ ...filled, amount: '9'.repeat(400) }).amount).toBe(AMOUNT_TOO_LARGE)
+    expect(validate({ ...filled, amount: '0' }).amount).toBe(AMOUNT_ERROR)
   })
 
   it('requires every field the live form required', () => {
@@ -169,6 +179,27 @@ describe('DonationForm component', () => {
     expect(screen.getByText('TX-9')).toBeInTheDocument()
   })
 
+  it('does not claim success or safety when capture fails', async () => {
+    await renderForm()
+    fill()
+    const capture = jest.fn().mockRejectedValue(new Error('network'))
+    await act(async () => {
+      await options.onApprove({}, { order: { create: jest.fn(), capture } })
+    })
+    expect(screen.getByText(/couldn't confirm your donation/)).toBeInTheDocument()
+    expect(screen.queryByText(/No payment was taken/)).not.toBeInTheDocument()
+    expect(screen.queryByRole('heading', { name: /Thank you/ })).not.toBeInTheDocument()
+  })
+
+  it('discloses PayPal and offers email while the form is shown', async () => {
+    await renderForm()
+    expect(screen.getByText(/sent to PayPal with your payment/)).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Email us' })).toHaveAttribute(
+      'href',
+      'mailto:give@example.org'
+    )
+  })
+
   it('tells the donor nothing was taken when they cancel', async () => {
     await renderForm()
     act(() => options.onCancel())
@@ -181,8 +212,18 @@ describe('DonationForm component', () => {
       setTimeout(() => (node as HTMLScriptElement).onerror?.(new Event('error')))
       return node
     })
-    render(<DonationForm clientId="x" currency="USD" charityName="T" fallback={fallback} />)
+    render(
+      <DonationForm
+        clientId="x"
+        currency="USD"
+        charityName="T"
+        emailHref="mailto:give@example.org"
+        fallback={fallback}
+      />
+    )
     expect(await screen.findByText('Email us to donate')).toBeInTheDocument()
+    expect(screen.queryByText(/processed securely by PayPal/)).not.toBeInTheDocument()
+    expect(screen.queryByRole('link', { name: 'Email us' })).not.toBeInTheDocument()
     expect(append.mock.calls[0][0]).toHaveProperty(
       'src',
       expect.stringContaining('https://www.paypal.com/sdk/js?client-id=x&currency=USD')

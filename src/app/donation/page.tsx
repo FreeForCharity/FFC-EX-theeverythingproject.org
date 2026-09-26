@@ -54,25 +54,13 @@ export default function DonationPage() {
 
       <section className="max-w-2xl mx-auto px-4 py-14" id="aria-font">
         {paypal.clientId ? (
-          <>
-            <p className="mb-6 text-center text-[15px] leading-[24px] text-[#555]">
-              Payments are processed securely by PayPal. You can pay with a PayPal account or a
-              debit or credit card.
-            </p>
-            <DonationForm
-              clientId={paypal.clientId}
-              currency={paypal.currency}
-              charityName={siteConfig.name}
-              fallback={unavailable}
-            />
-            <p className="mt-6 text-center text-[14px] text-[#777]">
-              Prefer another way to give?{' '}
-              <a href={mailtoHref} className="underline hover:text-[#ff6900]">
-                Email us
-              </a>
-              .
-            </p>
-          </>
+          <DonationForm
+            clientId={paypal.clientId}
+            currency={paypal.currency}
+            charityName={siteConfig.name}
+            emailHref={mailtoHref}
+            fallback={unavailable}
+          />
         ) : (
           unavailable
         )}
