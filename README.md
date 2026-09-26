@@ -20,9 +20,10 @@ Democratic Republic of the Congo.
 - **Fully localized assets**: the logo, hero images, and all 36 project-gallery/Crayon-Drive
   photos are served from this repository (`public/images/theeverythingproject/`) — no external
   asset hosts.
-- **Forms replaced**: the site's Forminator contact/volunteer forms and its GiveWP donation form
-  have no backend once static. The Contact and Volunteer pages use `mailto:` links instead; the
-  Donation page explains that online giving isn't available yet and links to email.
+- **Forms replaced**: the site's Forminator contact/volunteer forms and its Forminator donation form
+  (a PayPal payment field) have no backend once static. The Contact and Volunteer pages use
+  `mailto:` links instead; the Donation page explains that online giving isn't available yet and
+  links to email.
 - **Dropped (dormant/placeholder content)**: the four GiveWP dynamic pages (`donor-dashboard`,
   `donation-history`, `donation-confirmation`, `donation-failed`) rendered nothing but an unfilled
   shortcode and are meaningless without a live donation backend; the `hello-world` post is
