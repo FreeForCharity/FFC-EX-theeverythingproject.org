@@ -1,13 +1,12 @@
 import type { Metadata } from 'next'
-import { siteUrl } from '@/lib/site.config'
+import { pageMetadata } from '@/lib/siteMetadata'
 import Link from 'next/link'
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: 'Cookie Policy | Free For Charity',
   description: 'Cookie Policy for Free For Charity website',
-  // Own canonical: without it Next inherits the layout's, which points at the home page.
-  alternates: { canonical: siteUrl('/cookie-policy') },
-}
+  path: '/cookie-policy',
+})
 
 // Update this date when the policy changes
 const LAST_UPDATED = 'August 30, 2026'
