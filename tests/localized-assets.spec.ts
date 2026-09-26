@@ -14,6 +14,11 @@ for (const { path } of routes) {
   test(`serves every asset on ${path} from the site`, async ({ page, baseURL }) => {
     const origin = new URL(baseURL!).origin
     const offsite: string[] = []
+    const failed: string[] = []
+    page.on('response', (response) => {
+      if (new URL(response.url()).origin === origin && response.status() >= 400)
+        failed.push(`${response.status()} ${response.url()}`)
+    })
     page.on('request', (request) => {
       if (request.frame() !== page.mainFrame() || !ASSET_TYPES.has(request.resourceType())) return
       const url = new URL(request.url())
@@ -32,6 +37,7 @@ for (const { path } of routes) {
     await page.waitForLoadState('networkidle')
 
     expect(offsite).toEqual([])
+    expect(failed).toEqual([])
     const html = await page.content()
     expect(html).not.toMatch(/wp-content\/(uploads|themes|plugins)/)
     expect(html).not.toMatch(/fonts\.(googleapis|gstatic)\.com/)
