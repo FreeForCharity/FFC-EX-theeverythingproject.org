@@ -38,7 +38,7 @@
 
 ## Conditions before the window
 
-- **C1. Disable the Hostinger CDN for the domain at least 24 hours ahead.** Hostinger's documentation says "To enable managing of AAAA records for the root domain (@), Hostinger CDN must be fully disabled" ([Hostinger: manage AAAA records](https://www.hostinger.com/support/8899705-how-to-manage-aaaa-records-at-hostinger/)). The same applies to changing the `www` CNAME. Afterwards, `dig AAAA` at both nameservers must return nothing, repeated several times.
+- **C1. Disable the Hostinger CDN for the domain at least 24 hours ahead.** Hostinger's documentation says "To enable managing of AAAA records for the root domain (@), Hostinger CDN must be fully disabled" ([Hostinger: manage AAAA records](https://www.hostinger.com/support/8899705-how-to-manage-aaaa-records-at-hostinger/)). The same applies to changing the `www` CNAME. Afterwards, `dig +short @ns1.dns-parking.com theeverythingproject.org AAAA` and the same query against `ns2.dns-parking.com` must both return nothing, repeated several times. Today each returns 2 rotating records.
 - **C2. Set the TTL to 300 on the apex A record at least 4 hours ahead.** Create the new GitHub records at 300 as well.
 - **C3. Rebase [#23: stage custom-domain CNAME for cutover](https://github.com/FreeForCharity/FFC-EX-theeverythingproject.org/pull/23) onto main.** It must include [#60: close the repo-side cutover gaps](https://github.com/FreeForCharity/FFC-EX-theeverythingproject.org/pull/60), now merged. Resolve the conflict by keeping main's two skips and adding `^https://theeverythingproject\.org/.*`. CI must be green. It is Clarke's PR, so this needs him or his go-ahead.
 - **C4. A way to bind the custom domain during the window.** Any one of these works:
@@ -59,7 +59,10 @@ Schedule the window off-peak, and not across 05:17 UTC when the daily smoke test
    - confirm no apex AAAA remains
    - set `www` to CNAME `freeforcharity.github.io.`, TTL 300
    - leave MX, TXT, `_dmarc`, `autodiscover`, `autoconfig` and `ftp` untouched
-3. Check that `dig @ns1.dns-parking.com` and `dig @ns2.dns-parking.com` show only the GitHub records for the apex and `www`.
+3. Against both `ns1.dns-parking.com` and `ns2.dns-parking.com`, check:
+   - `dig +short @ns1.dns-parking.com theeverythingproject.org A` returns only the four `185.199.x.153` addresses
+   - `dig +short @ns1.dns-parking.com theeverythingproject.org AAAA` returns nothing
+   - `dig +short @ns1.dns-parking.com www.theeverythingproject.org CNAME` returns `freeforcharity.github.io.`
 4. Bind the domain: `gh api -X PUT repos/FreeForCharity/FFC-EX-theeverythingproject.org/pages -f cname=theeverythingproject.org`.
 5. Poll `gh api repos/FreeForCharity/FFC-EX-theeverythingproject.org/pages -q .https_certificate.state`. If it stays `none` or `errored` for 15 minutes on clean DNS, re-bind with `gh api -X PUT repos/FreeForCharity/FFC-EX-theeverythingproject.org/pages -F cname=null`, then repeat step 4. Re-bind at most twice, because Let's Encrypt allows only 5 failed authorizations per hour.
 6. Once the state is `approved`, enforce HTTPS with `gh api -X PUT repos/FreeForCharity/FFC-EX-theeverythingproject.org/pages -F https_enforced=true`, then check:
@@ -187,9 +190,34 @@ $ NEXT_PUBLIC_BASE_PATH= pnpm exec next build && grep -c FFC-EX out/index.html
 0
 $ pnpm exec playwright test   # baseURL on a root static server of out/
 73 passed
-$ node redirects.mjs          # each legacy URL, at the root and under the github.io subpath
-failures: 0   (30 of 30 land on the mapped page)
 ```
+
+**Every legacy redirect points at a page the build produces.** Run from a checkout after `pnpm run build`:
+
+```text
+$ cd out && for f in index.php/*/index.html bwg_album/*/index.html bwg_gallery/*/index.html \
+    donation-confirmation/index.html donation-failed/index.html; do
+    t=$(grep -o 'url=[^"]*' "$f" | cut -d= -f2); d=$(dirname "$f")
+    [ -f "$(cd "$d/$t" 2>/dev/null && pwd)/index.html" ] && echo "OK  /$d/ -> $t" || echo "BAD /$d/ -> $t"
+  done
+OK  /index.php/contact-us/ -> ../../contact-us/
+OK  /index.php/donation/ -> ../../donation/
+OK  /index.php/gallery/ -> ../../gallery/
+OK  /index.php/volunteer/ -> ../../volunteer/
+OK  /bwg_album/idjwi/ -> ../../gallery/idjwi/
+OK  /bwg_gallery/back-to-skool-22/ -> ../../gallery/
+OK  /bwg_gallery/crayon-drive/ -> ../../crayon-drive-photo-album/
+OK  /bwg_gallery/don-bosco/ -> ../../gallery/don-bosco/
+OK  /bwg_gallery/idjwi/ -> ../../gallery/idjwi/
+OK  /bwg_gallery/jva/ -> ../../gallery/jva/
+OK  /bwg_gallery/minova-unrecognized-refugee-camp/ -> ../../gallery/minova/
+OK  /bwg_gallery/mweso/ -> ../../gallery/mweso/
+OK  /bwg_gallery/our-project-gallery-home/ -> ../../gallery/
+OK  /donation-confirmation/ -> ../donation/
+OK  /donation-failed/ -> ../donation/
+```
+
+The targets are relative, so they resolve the same way at the github.io subpath and at the apex. During review, each redirect was also followed in Chromium at both, and all 30 landed on the mapped page.
 
 **The github.io build is correct today.** The canonical keeps the subpath:
 
