@@ -61,8 +61,8 @@ Schedule the window off-peak, and not across 05:17 UTC when the daily smoke test
    - leave MX, TXT, `_dmarc`, `autodiscover`, `autoconfig` and `ftp` untouched
 3. Check that `dig @ns1.dns-parking.com` and `dig @ns2.dns-parking.com` show only the GitHub records for the apex and `www`.
 4. Bind the domain: `gh api -X PUT repos/FreeForCharity/FFC-EX-theeverythingproject.org/pages -f cname=theeverythingproject.org`.
-5. Poll `gh api repos/FreeForCharity/FFC-EX-theeverythingproject.org/pages -q .https_certificate.state`. If it stays `none` or `errored` for 15 minutes on clean DNS, re-bind by setting `cname` to null and then back to the domain. Re-bind at most twice, because Let's Encrypt allows only 5 failed authorizations per hour.
-6. Once the state is `approved`, confirm HTTPS enforcement with `-F https_enforced=true`, then check:
+5. Poll `gh api repos/FreeForCharity/FFC-EX-theeverythingproject.org/pages -q .https_certificate.state`. If it stays `none` or `errored` for 15 minutes on clean DNS, re-bind with `gh api -X PUT repos/FreeForCharity/FFC-EX-theeverythingproject.org/pages -F cname=null`, then repeat step 4. Re-bind at most twice, because Let's Encrypt allows only 5 failed authorizations per hour.
+6. Once the state is `approved`, enforce HTTPS with `gh api -X PUT repos/FreeForCharity/FFC-EX-theeverythingproject.org/pages -F https_enforced=true`, then check:
    - `https://theeverythingproject.org/` returns 200
    - a `/_next/static/` asset from the home page returns 200
    - `http://` redirects to `https://`
