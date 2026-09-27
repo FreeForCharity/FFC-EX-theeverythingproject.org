@@ -2,7 +2,7 @@
 
 - **Status:** Proposed, 2026-09-26. Authorization is not yet recorded; the cutover remains gated on [#37: cutover](https://github.com/FreeForCharity/FFC-EX-theeverythingproject.org/issues/37).
 - **Decision:** Proceed to cutover once conditions C1 to C5 below are met, using Option 2, a manual record change at Hostinger. The site itself is ready. The launch mechanics are not ready yet.
-- **Out of scope:** Payments are deferred until after launch. The live test donation and the PayPal receipt check no longer gate cutover.
+- **Online giving:** Accepted as is by the maintainer on 2026-09-26, based on the completed $1.00 live donation. No payment check gates cutover. The prerequisites on [#37: cutover](https://github.com/FreeForCharity/FFC-EX-theeverythingproject.org/issues/37) were reconciled with this record on the same date, so C1 to C5 are the launch gate.
 
 ## How this was decided
 
@@ -81,7 +81,7 @@ Leave the Pages binding and the build as they are. github.io then redirects to t
 
 ## Deferred until after launch
 
-- Payments: the live test donation, the PayPal receipt, and [#55: donation provider](https://github.com/FreeForCharity/FFC-EX-theeverythingproject.org/issues/55).
+- [#55: donation provider](https://github.com/FreeForCharity/FFC-EX-theeverythingproject.org/issues/55), the fleet prompt to move from PayPal to a preferred provider.
 - The React error 418 hydration warning on `/donation/`. It already happens on github.io and has no visible effect.
 - Search Console for the new origin.
 - Updating references to the github.io URL:
