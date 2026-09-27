@@ -79,7 +79,8 @@ describe('Page metadata', () => {
 
   it.each(ROUTES)('%s has its own Open Graph and Twitter card', async (dir, path, title) => {
     const { metadata } = await import(`../../src/app/${dir}/page`)
-    const url = `https://freeforcharity.github.io${path}`
+    const { siteConfig } = await import('../../src/lib/site.config')
+    const url = `${siteConfig.url}${path}`
     const fullTitle = `${title} | The Everything Project`
     expect(metadata.alternates.canonical).toBe(url)
     expect(metadata.openGraph).toMatchObject({
