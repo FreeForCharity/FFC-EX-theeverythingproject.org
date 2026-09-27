@@ -87,7 +87,18 @@ Schedule the window off-peak, and not across 05:17 UTC when the daily smoke test
 
 **Steps:**
 
-1. Re-run the step 3 `dig` loop, and also query the public resolvers: `dig +short @1.1.1.1 theeverythingproject.org A` and `dig +short @8.8.8.8 www.theeverythingproject.org CNAME`. Re-bind only when every answer shows the GitHub records. A stale answer means waiting, not re-binding.
+1. Re-run the step 3 `dig` loop, and also query the public resolvers:
+
+   ```bash
+   for r in 1.1.1.1 8.8.8.8; do
+     dig +short @$r theeverythingproject.org A            # only the four 185.199.x.153
+     dig +short @$r theeverythingproject.org AAAA         # nothing
+     dig +short @$r www.theeverythingproject.org CNAME    # freeforcharity.github.io.
+   done
+   ```
+
+   Re-bind only when every answer shows the GitHub records and no AAAA remains. A stale answer means waiting, not re-binding.
+
 2. Re-bind with `gh api -X PUT repos/FreeForCharity/FFC-EX-theeverythingproject.org/pages -F cname=null`, then repeat step 4 straight away. Between the two calls the domain is unbound, so the apex shows GitHub's "Site not found" page for those few seconds. Wait at least 15 minutes before judging the result.
 3. **Abort threshold.** Roll back if either of these happens:
    - the apex certificate is not `approved` 60 minutes after the first bind. The only fleet precedent took about 55 minutes.
@@ -192,7 +203,7 @@ strict-transport-security: max-age=15811200 ; includeSubDomains ; preload
 
 ```text
 $ gh api repos/FreeForCharity/FFC-EX-theeverythingproject.org/pages -q '{cname,build_type,https_enforced,protected_domain_state}'
-{"build_type":"workflow","cname":null,"https_enforced":true,"protected_domain_state":null}
+{"build_type":"workflow","cname":null,"https_enforced":true,"protected_domain_state":null}   # gh prints keys sorted
 $ gh api "repos/FreeForCharity/FFC-EX-theeverythingproject.org/collaborators?affiliation=all" -q '.[]|"\(.login) \(.role_name)"'
 phoganuci write
 clarkemoyer admin
@@ -201,7 +212,7 @@ clarkemoyer admin
 **The build switches to a root basePath when `public/CNAME` exists.** The file is not on main yet:
 
 ```text
-$ gh api repos/.../contents/.github/workflows/deploy.yml -q .content | base64 -d | grep -n 'public/CNAME" ]'
+$ gh api repos/FreeForCharity/FFC-EX-theeverythingproject.org/contents/.github/workflows/deploy.yml -q .content | base64 -d | grep -n 'public/CNAME" ]'
 85:          if [ -s "public/CNAME" ]; then
 $ gh api repos/FreeForCharity/FFC-EX-theeverythingproject.org/contents/public/CNAME
 gh: Not Found (HTTP 404)
@@ -210,9 +221,10 @@ gh: Not Found (HTTP 404)
 **Held PR [#23: stage custom-domain CNAME for cutover](https://github.com/FreeForCharity/FFC-EX-theeverythingproject.org/pull/23):**
 
 ```text
-$ gh pr view 23 --json isDraft,mergeable,mergeStateStatus,headRefOid
+$ gh pr view 23 --json isDraft,mergeable,mergeStateStatus,headRefOid \
+    -q '"\(.isDraft) \(.mergeable) \(.mergeStateStatus) \(.headRefOid[0:7])"'
 true CONFLICTING DIRTY 43e19c3
-$ git merge-tree --write-tree --name-only origin/main origin/claude/intelligent-bardeen-pujyem
+$ git merge-tree --write-tree --name-only origin/main origin/claude/intelligent-bardeen-pujyem | grep CONFLICT
 CONFLICT (content): Merge conflict in .linkinatorrc.json
 ```
 
@@ -272,10 +284,11 @@ $ curl -s https://freeforcharity.github.io/FFC-EX-theeverythingproject.org/donat
 **The only fleet precedent took about an hour from DNS flip to certificate.** This was technologymonastery.org, on a Cloudflare zone:
 
 ```text
-$ gh run view 29715502116 -R FreeForCharity/FFC-Cloudflare-Automation --json createdAt,updatedAt
+$ gh run view 29715502116 -R FreeForCharity/FFC-Cloudflare-Automation --json createdAt,updatedAt \
+    -q '"\(.createdAt) -> \(.updatedAt)"'
 2026-07-20T03:49:58Z -> 2026-07-20T03:55:06Z   (DNS flip)
-$ gh run view 29717731475 -R FreeForCharity/FFC-EX-technologymonastery.org --log | grep 'Attempt 1'
-2026-07-20T04:48:40Z Attempt 1: HTTP 200 (cert provisioned, site reachable)
+$ gh run view 29717731475 -R FreeForCharity/FFC-EX-technologymonastery.org --log | grep -v echo | grep 'Attempt 1'
+smoke  UNKNOWN STEP  2026-07-20T04:48:40.4482216Z Attempt 1: HTTP 200 (cert provisioned, site reachable)
 ```
 
 That run needed one manual fix along the way: a stale A record had to be removed and the domain re-bound ([FFC-Cloudflare-Automation#774: 120 dns-flip delete any non-Pages apex A](https://github.com/FreeForCharity/FFC-Cloudflare-Automation/issues/774)).
