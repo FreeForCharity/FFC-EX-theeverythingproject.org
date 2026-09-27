@@ -59,13 +59,19 @@ Schedule the window off-peak, and not across 05:17 UTC when the daily smoke test
    - confirm no apex AAAA remains
    - set `www` to CNAME `freeforcharity.github.io.`, TTL 300
    - leave MX, TXT, `_dmarc`, `autodiscover`, `autoconfig` and `ftp` untouched
-3. Against both `ns1.dns-parking.com` and `ns2.dns-parking.com`, check:
-   - `dig +short @ns1.dns-parking.com theeverythingproject.org A` returns only the four `185.199.x.153` addresses
-   - `dig +short @ns1.dns-parking.com theeverythingproject.org AAAA` returns nothing
-   - `dig +short @ns1.dns-parking.com www.theeverythingproject.org CNAME` returns `freeforcharity.github.io.`
+3. Check both nameservers. `www` must resolve to GitHub before step 4, because the certificate only covers `www` when it does:
+
+   ```bash
+   for ns in ns1 ns2; do
+     dig +short @$ns.dns-parking.com theeverythingproject.org A            # only the four 185.199.x.153
+     dig +short @$ns.dns-parking.com theeverythingproject.org AAAA         # nothing
+     dig +short @$ns.dns-parking.com www.theeverythingproject.org CNAME    # freeforcharity.github.io.
+   done
+   ```
+
 4. Bind the domain: `gh api -X PUT repos/FreeForCharity/FFC-EX-theeverythingproject.org/pages -f cname=theeverythingproject.org`.
 5. Poll `gh api repos/FreeForCharity/FFC-EX-theeverythingproject.org/pages -q .https_certificate.state`. If it stays `none` or `errored` for 15 minutes on clean DNS, re-bind with `gh api -X PUT repos/FreeForCharity/FFC-EX-theeverythingproject.org/pages -F cname=null`, then repeat step 4. Re-bind at most twice, because Let's Encrypt allows only 5 failed authorizations per hour.
-6. Once the state is `approved`, enforce HTTPS with `gh api -X PUT repos/FreeForCharity/FFC-EX-theeverythingproject.org/pages -F https_enforced=true`, then check:
+6. Once the state is `approved`, confirm that `gh api repos/FreeForCharity/FFC-EX-theeverythingproject.org/pages -q .https_certificate.domains` lists both `theeverythingproject.org` and `www.theeverythingproject.org`. The catnipandcattitude.org certificate lists both, and its `www` 301s to the apex. If `www` is missing, `www` did not resolve to GitHub at issuance: re-bind as in step 5. Then enforce HTTPS with `gh api -X PUT repos/FreeForCharity/FFC-EX-theeverythingproject.org/pages -F https_enforced=true`, then check:
    - `https://theeverythingproject.org/` returns 200
    - a `/_next/static/` asset from the home page returns 200
    - `http://` redirects to `https://`
@@ -186,8 +192,15 @@ CONFLICT (content): Merge conflict in .linkinatorrc.json
 $ pnpm exec jest
 Test Suites: 36 passed, 36 total
 Tests:       320 passed, 320 total
-$ NEXT_PUBLIC_BASE_PATH= pnpm exec next build && grep -c FFC-EX out/index.html
+$ NEXT_PUBLIC_BASE_PATH= pnpm exec next build && find out -type f | wc -l
+424
+$ grep -rlF freeforcharity.github.io out | wc -l
 0
+$ grep -rlF FFC-EX-theeverythingproject out --exclude=security.txt | wc -l
+0
+$ grep -rlF FFC-EX-theeverythingproject out --include=security.txt
+out/security.txt
+out/.well-known/security.txt      # known, see Deferred
 $ pnpm exec playwright test   # baseURL on a root static server of out/
 73 passed
 ```
