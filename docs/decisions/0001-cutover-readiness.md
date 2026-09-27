@@ -31,7 +31,7 @@
 | Pages custom domain                        | Not done by the merge   | The deploy uses GitHub Actions as its Pages source, so `public/CNAME` is ignored. Binding needs a repo admin, or a maintainer (C4)                                                                                                                                                                                                                                                                                                                                                                                           |
 | Held CNAME PR                              | Needs a rebase          | It has one conflict, in `.linkinatorrc.json`. Its 12 test failures are fixed by [#60: close the repo-side cutover gaps](https://github.com/FreeForCharity/FFC-EX-theeverythingproject.org/pull/60) (C3)                                                                                                                                                                                                                                                                                                                      |
 | TTL                                        | Must lower first        | The apex A record's TTL is 14400. Without lowering it first, a rollback leaves visitors on the new records, hard-failing under the cached WordPress HSTS, for up to 4 hours (C2)                                                                                                                                                                                                                                                                                                                                             |
-| HTTPS gap in the window                    | Expect 30 to 60 minutes | That is the technologymonastery.org precedent. WordPress sends HSTS, so affected visitors cannot click through                                                                                                                                                                                                                                                                                                                                                                                                               |
+| HTTPS gap in the window                    | Expect 30 to 60 minutes | That is the technologymonastery.org precedent. WordPress sends HSTS, so affected visitors cannot click through. Roll back if the certificate has not issued within 60 minutes (see Certificate recovery)                                                                                                                                                                                                                                                                                                                     |
 | Legacy WordPress URLs                      | Handled                 | [#60: close the repo-side cutover gaps](https://github.com/FreeForCharity/FFC-EX-theeverythingproject.org/pull/60) redirects the 15 legacy URLs that have a matching page. The rest land on the branded 404                                                                                                                                                                                                                                                                                                                  |
 | Security headers                           | Accepted risk           | GitHub Pages sends none, the same as every fleet site ([FFC-Cloudflare-Automation#894: fleet security headers](https://github.com/FreeForCharity/FFC-Cloudflare-Automation/issues/894)). The meta CSP stays in effect                                                                                                                                                                                                                                                                                                        |
 | Workflow 121                               | Not a valid gate        | Once the domain is bound it follows the redirect to the apex, and its marker text matches WordPress too. Verify with a `/_next/` asset and a crawl instead                                                                                                                                                                                                                                                                                                                                                                   |
@@ -69,15 +69,33 @@ Schedule the window off-peak, and not across 05:17 UTC when the daily smoke test
    done
    ```
 
-4. Bind the domain: `gh api -X PUT repos/FreeForCharity/FFC-EX-theeverythingproject.org/pages -f cname=theeverythingproject.org`.
-5. Poll `gh api repos/FreeForCharity/FFC-EX-theeverythingproject.org/pages -q .https_certificate.state`. If it stays `none` or `errored` for 15 minutes on clean DNS, re-bind with `gh api -X PUT repos/FreeForCharity/FFC-EX-theeverythingproject.org/pages -F cname=null`, then repeat step 4. Re-bind at most twice, because Let's Encrypt allows only 5 failed authorizations per hour.
-6. Once the state is `approved`, confirm that `gh api repos/FreeForCharity/FFC-EX-theeverythingproject.org/pages -q .https_certificate.domains` lists both `theeverythingproject.org` and `www.theeverythingproject.org`. This is GitHub's documented behavior for an apex binding: "If you configure the correct records for each domain type through your DNS provider, GitHub Pages will automatically create redirects between the domains ... If you instead configure `example.com` as the custom domain, then `www.example.com` will redirect to `example.com`" ("About custom domains and GitHub Pages"). The fleet precedent matches: the catnipandcattitude.org certificate lists both names, and its `www` returns a 301 to the apex. The comment in `post-deploy-smoke.yml` that Pages certifies "only the host named in public/CNAME" describes what happens when `www` does not resolve to Pages at issuance. If `www` is missing from the list, re-bind as in step 5. If it is still missing after the capped re-binds, keep the apex live, record `www` as an open item on [#37: cutover](https://github.com/FreeForCharity/FFC-EX-theeverythingproject.org/issues/37), and fix it before closing the cutover. Then enforce HTTPS with `gh api -X PUT repos/FreeForCharity/FFC-EX-theeverythingproject.org/pages -F https_enforced=true`, then check:
+4. Bind the domain with `gh api -X PUT repos/FreeForCharity/FFC-EX-theeverythingproject.org/pages -f cname=theeverythingproject.org`, and note the time. The recovery clock below starts here.
+5. Poll `gh api repos/FreeForCharity/FFC-EX-theeverythingproject.org/pages -q .https_certificate.state` every few minutes until it reads `approved`. States such as `new` and `authorization_created` mean issuance is progressing. If it is still `none`, or reads `errored`, 15 minutes after the bind, follow [Certificate recovery](#certificate-recovery).
+6. When the state is `approved`, check that `gh api repos/FreeForCharity/FFC-EX-theeverythingproject.org/pages -q .https_certificate.domains` lists both `theeverythingproject.org` and `www.theeverythingproject.org`. If `www` is missing, follow [Certificate recovery](#certificate-recovery). Otherwise enforce HTTPS with `gh api -X PUT repos/FreeForCharity/FFC-EX-theeverythingproject.org/pages -F https_enforced=true` and check:
    - `https://theeverythingproject.org/` returns 200
    - a `/_next/static/` asset from the home page returns 200
    - `http://` redirects to `https://`
-   - `www` redirects to the apex
+   - `https://www.theeverythingproject.org/` redirects to the apex
    - the github.io URL redirects to the apex with the path preserved
 7. Dispatch the post-deploy smoke test, then crawl all 18 routes at the apex for failed requests and CSP violations.
+
+### Certificate recovery
+
+**Why a re-bind helps.** GitHub starts certificate issuance when the domain is bound, and only for names that pass its DNS check at that moment. Its public checker refuses a certificate while any non-GitHub IP is present (see the appendix). If issuance began before DNS was clean, it can stall in `none` or leave `www` out of the certificate. Setting the custom domain to null and binding it again starts a fresh request. That is the fix used in the technologymonastery.org cutover ([FFC-Cloudflare-Automation#774: 120 dns-flip delete any non-Pages apex A](https://github.com/FreeForCharity/FFC-Cloudflare-Automation/issues/774)), where the certificate issued about 2 minutes after a re-bind on clean DNS.
+
+**Why re-binds are capped at two.** Each attempt on bad DNS can fail validation for the apex and for `www`. Let's Encrypt allows 5 failed validations per name per hour, so repeated re-binds can lock the domain out for up to an hour. Two re-binds leave headroom.
+
+**Steps:**
+
+1. Re-run the step 3 `dig` loop, and also query the public resolvers: `dig +short @1.1.1.1 theeverythingproject.org A` and `dig +short @8.8.8.8 www.theeverythingproject.org CNAME`. Re-bind only when every answer shows the GitHub records. A stale answer means waiting, not re-binding.
+2. Re-bind with `gh api -X PUT repos/FreeForCharity/FFC-EX-theeverythingproject.org/pages -F cname=null`, then repeat step 4 straight away. Between the two calls the domain is unbound, so the apex shows GitHub's "Site not found" page for those few seconds. Wait at least 15 minutes before judging the result.
+3. **Abort threshold.** Roll back if either of these happens:
+   - the apex certificate is not `approved` 60 minutes after the first bind. The only fleet precedent took about 55 minutes.
+   - two re-binds have not produced an `approved` apex certificate.
+
+   Until the apex certificate issues, every HTTPS visitor gets a certificate error. Visitors with WordPress's cached HSTS cannot click past it, so waiting longer than this is not acceptable.
+
+4. **If only `www` is missing** once the apex is `approved`, keep the apex live. `www` visitors get a certificate error, because WordPress's cached HSTS covers subdomains, so fix it the same evening: confirm `www` resolves to GitHub everywhere, then use a re-bind. Afterwards, `.https_certificate.domains` must list `www`. If it still does not, record `www` as open on [#37: cutover](https://github.com/FreeForCharity/FFC-EX-theeverythingproject.org/issues/37). This is a known fleet failure mode: the comment in `post-deploy-smoke.yml` that Pages certifies "only the host named in public/CNAME" describes a `www` that did not resolve to Pages at issuance. It is not a GitHub limit. GitHub documents that with an apex binding, "`www.example.com` will redirect to `example.com`" once both names have Pages DNS records ("About custom domains and GitHub Pages"). catnipandcattitude.org works this way: its certificate lists both names and its `www` returns a 301 to the apex.
 
 ## Rollback
 
@@ -86,7 +104,19 @@ The first rollback step is a DNS-only revert at Hostinger:
 - apex A back to `153.92.213.212`
 - `www` back to `www.theeverythingproject.org.cdn.hstgr.net`
 
-Leave the Pages binding and the build as they are. github.io then redirects to the apex, which is WordPress again. Do not revert the CNAME file on its own: while the domain is still bound, that would serve the subpath build at the apex root. Hostinger hosting must stay active until the new site has been stable for an agreed period.
+With the TTL at 300 (C2), most visitors are back on WordPress within about 5 minutes. Leave the Pages binding and the build as they are:
+
+- github.io then redirects to the apex, which is WordPress again.
+- Keeping the binding also stops anyone else claiming the domain on Pages.
+
+Do not revert the CNAME file on its own: while the domain is still bound, that would serve the subpath build at the apex root.
+
+After a rollback:
+
+- The daily post-deploy smoke test runs in apex mode, fails against WordPress, and keeps a `priority: high` issue open until the next attempt succeeds. Expect that, rather than treating it as a new incident.
+- Record what failed on [#37: cutover](https://github.com/FreeForCharity/FFC-EX-theeverythingproject.org/issues/37) before scheduling the next window.
+
+Hostinger hosting must stay active until the new site has been stable for an agreed period.
 
 ## Deferred until after launch
 
