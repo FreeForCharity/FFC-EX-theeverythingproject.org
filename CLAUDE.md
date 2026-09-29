@@ -26,7 +26,8 @@ These were deliberate choices in the migration PR. Do not "fix" them:
 2. Forminator forms are replaced with `mailto:` links.
 3. The donation page does not claim online giving works. Restoring it is tracked in
    [#35: restore online giving via PayPal](https://github.com/FreeForCharity/FFC-EX-theeverythingproject.org/issues/35).
-4. No EIN or 501(c)(3) status is asserted (footer Level 1).
+4. The EIN (`85-4043819`) and 501(c)(3) status are asserted only because the charity publishes the
+   EIN and ProPublica confirms it. No GuideStar profile is shown until the charity provides one.
 5. No production `CNAME`.
 
 ## Comments

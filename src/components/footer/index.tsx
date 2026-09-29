@@ -9,7 +9,14 @@ import { FaXTwitter } from 'react-icons/fa6'
 import type { IconType } from 'react-icons'
 import type { LucideIcon } from 'lucide-react'
 import { assetPath } from '@/lib/assetPath'
-import { siteConfig } from '@/lib/site.config'
+import { PENDING_TEXT, isPending, mailtoHref, siteConfig } from '@/lib/site.config'
+
+// Visible stand-in for a footer-standard field the charity has not supplied
+// yet (see PendingField in site.config.ts). Plain text, never a link: a gap
+// in the standard should read as a call to action, not as a working control.
+function PendingNote() {
+  return <span className="block italic text-[15px] text-gray-300">{PENDING_TEXT}</span>
+}
 
 // Maps a social link's label (as defined in siteConfig.social) to an icon.
 // Unknown labels fall back to a generic link icon (Link2) so a charity
@@ -28,23 +35,28 @@ const socialIconByLabel: Record<string, IconType | LucideIcon> = {
 const Footer: React.FC = () => {
   const currentYear = React.useMemo(() => new Date().getFullYear(), [])
   const socialLinks = siteConfig.social.filter((social) => social.href)
+  // A legal claim: rendered only when the organization actually holds it.
+  const taxStatusLabel = siteConfig.taxStatusLabel.trim()
 
   return (
     <footer className="bg-black text-white">
-      <div
-        className={`max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 ${
-          siteConfig.hasGuidestarProfile ? 'lg:grid-cols-3' : 'lg:grid-cols-2'
-        } gap-5 py-12 px-4 md:px-6 lg:px-8`}
-      >
-        {/* Column 1: Endorsements — FFC footer standard Level 2 only. Hidden
-            (siteConfig.hasGuidestarProfile === false) until a real
-            Candid/GuideStar profile is confirmed for this charity; see the
-            comment on that field in site.config.ts. */}
-        {siteConfig.hasGuidestarProfile && (
-          <div className="space-y-6 px-4 sm:px-0">
-            <h3 className="text-[28px] text-white">Endorsements</h3>
+      {/* Mission line: the footer renders on every page, so even a footer-only
+          site states who the charity is and what it does everywhere. */}
+      <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 pt-12 text-center">
+        <p className="text-[28px] font-[500]">{siteConfig.name}</p>
+        <p className="aria-font text-[18px] mt-2">{siteConfig.mission}</p>
+      </div>
 
-            <div className="space-y-4">
+      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 py-12 px-4 md:px-6 lg:px-8">
+        {/* Column 1: Endorsements */}
+        <div className="space-y-6 px-4 sm:px-0">
+          <h3 className="text-[28px] text-white">Endorsements</h3>
+
+          <div className="space-y-4">
+            {/* The seal and the direct link are transparency claims: each renders
+              only when its own GuideStar URL is configured, so a charity with no
+              profile shows neither rather than linking to someone else's. */}
+            {siteConfig.guidestar.profileUrl.trim() && (
               <a
                 href={siteConfig.guidestar.profileUrl}
                 aria-label={`View ${siteConfig.name} GuideStar Profile`}
@@ -54,12 +66,19 @@ const Footer: React.FC = () => {
                   alt="GuideStar Platinum Seal of Transparency"
                 />
               </a>
+            )}
+            {isPending('guidestar') && (
+              <div>
+                <p className="font-[500] text-[22px]">GuideStar / Candid Profile</p>
+                <PendingNote />
+              </div>
+            )}
+            {siteConfig.guidestar.directProfileUrl.trim() && (
               <Link
                 href={siteConfig.guidestar.directProfileUrl}
                 className="group relative my-4 flex w-full max-w-[230px] items-center justify-between
                   border-2 border-[#2ea3f2] bg-black px-5 py-2.5 text-[#2ea3f2]
-                  transition-all duration-300 hover:border-transparent"
-                id="aria-font"
+                  transition-all duration-300 hover:border-transparent aria-font"
               >
                 <span className="text-[17px] font-medium leading-tight sm:text-[18px] md:text-[20px] transition-transform duration-300 group-hover:-translate-x-1">
                   Direct GuideStar Profile Link
@@ -70,17 +89,16 @@ const Footer: React.FC = () => {
                   strokeWidth={2}
                 />
               </Link>
+            )}
 
-              {siteConfig.hasVerifiedNonprofitStatus && (
-                <p>
-                  <span className="font-[500] text-[22px]">
-                    {siteConfig.name} EIN: {siteConfig.ein}
-                  </span>
-                </p>
-              )}
-            </div>
+            <p>
+              <span className="font-[500] text-[22px]">
+                {siteConfig.name} EIN: {isPending('ein') ? null : siteConfig.ein}
+              </span>
+              {isPending('ein') && <PendingNote />}
+            </p>
           </div>
-        )}
+        </div>
 
         {/* Column 2: Quick Links */}
         <div className="space-y-6 px-4 sm:px-0">
@@ -187,29 +205,62 @@ const Footer: React.FC = () => {
               <Mail className="w-10 h-10 text-orange-500 flex-shrink-0 mt-0.5" />
               <div>
                 <p className="font-[500] text-[22px]">E-mail</p>
-                <a
-                  href={`mailto:${siteConfig.contactEmail}`}
-                  className="font-[500] text-[15px] hover:text-cyan-400 transition-colors break-all"
-                  id="aria-font"
-                >
-                  {siteConfig.contactEmail}
-                </a>
+                {isPending('email') ? (
+                  <PendingNote />
+                ) : (
+                  <a
+                    href={mailtoHref()}
+                    className="aria-font font-[500] text-[15px] hover:text-cyan-400 transition-colors break-all"
+                  >
+                    {siteConfig.contactEmail}
+                  </a>
+                )}
               </div>
             </div>
 
-            <div className="flex items-start gap-3">
-              <Phone className="w-10 h-10 text-orange-500 flex-shrink-0 mt-0.5" />
-              <div>
-                <p className="font-[500] text-[22px]">Call Us Today</p>
-                <a
-                  href={`tel:${siteConfig.phone.tel}`}
-                  className="font-[500] text-[16px] hover:text-cyan-400 transition-colors"
-                  id="aria-font"
-                >
-                  {siteConfig.phone.display}
-                </a>
+            {/*
+              Rendered only when a number is actually configured. A charity with
+              no published phone number leaves siteConfig.phone empty, and an
+              empty `tel:` link is worse than an absent one: it still looks
+              callable to a sighted user and is still announced as a phone link
+              by a screen reader, but dials nothing. Before this guard the only
+              way to express "no phone" was a placeholder string, which shipped
+              as `tel:PENDING` on a live charity site.
+            */}
+            {isPending('phone') && (
+              <div className="flex items-start gap-3">
+                <Phone className="w-10 h-10 text-orange-500 flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="font-[500] text-[22px]">Call Us Today</p>
+                  <PendingNote />
+                </div>
               </div>
-            </div>
+            )}
+
+            {siteConfig.phone.tel.trim() && siteConfig.phone.display.trim() && (
+              <div className="flex items-start gap-3">
+                <Phone className="w-10 h-10 text-orange-500 flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="font-[500] text-[22px]">Call Us Today</p>
+                  <a
+                    href={`tel:${siteConfig.phone.tel.trim()}`}
+                    className="aria-font font-[500] text-[16px] hover:text-cyan-400 transition-colors"
+                  >
+                    {siteConfig.phone.display}
+                  </a>
+                </div>
+              </div>
+            )}
+
+            {isPending('address') && (
+              <div className="flex items-start gap-3">
+                <MapPin className="w-10 h-10 text-orange-500 flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="font-[500] text-[22px]">Address</p>
+                  <PendingNote />
+                </div>
+              </div>
+            )}
 
             {siteConfig.addresses.map((address) => (
               <a
@@ -222,7 +273,7 @@ const Footer: React.FC = () => {
                 <MapPin className="w-10 h-10 text-orange-500 flex-shrink-0 mt-0.5" />
                 <div>
                   <p className="font-[500] text-[22px]">{address.label}</p>
-                  <p className="font-[500] text-[16px]" id="aria-font">
+                  <p className="aria-font font-[500] text-[16px]">
                     {address.lines.map((line, index) => (
                       <React.Fragment key={line}>
                         {line}
@@ -238,6 +289,12 @@ const Footer: React.FC = () => {
               </a>
             ))}
 
+            {isPending('social') && (
+              <div className="pt-4">
+                <p className="font-[500] text-[22px]">Social Media</p>
+                <PendingNote />
+              </div>
+            )}
             <div className="flex gap-3 pt-4">
               {socialLinks.map(({ href, label }) => {
                 const Icon = socialIconByLabel[label] ?? Link2
@@ -260,16 +317,14 @@ const Footer: React.FC = () => {
       </div>
 
       {/* Bottom Bar */}
-      <div
-        className="mt-12 py-6 px-4 border-t border-gray-800 text-center text-[18px] font-[500] w-full"
-        id="aria-font"
-      >
+      <div className="aria-font mt-12 py-6 px-4 border-t border-gray-800 text-center text-[18px] font-[500] w-full">
         <p>
           © {currentYear} All Rights Are Reserved by {siteConfig.name}
-          {siteConfig.hasVerifiedNonprofitStatus ? ' a US 501(c)(3) Non Profit' : ''}
-          {/* FFC footer standard: the "Supported by Free For Charity" attribution
-              below is the permanent part to KEEP when customizing this template
-              (the surrounding copyright text above is placeholder). */}
+          {taxStatusLabel ? ` ${taxStatusLabel}` : ''}
+          {/* FFC footer standard: the "Supported by" attribution below — whose
+              name comes from siteConfig.supportedBy — is the permanent part to
+              KEEP when customizing this template (the surrounding copyright
+              text above is placeholder). */}
           {' | Supported by '}
           <Link
             href={siteConfig.supportedBy.url}

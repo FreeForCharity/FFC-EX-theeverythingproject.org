@@ -38,7 +38,7 @@ You are reviewing a pull request on an FFC-supported nonprofit site built from `
    - Flag comments that aren't needed for an external reader to understand the code, or that are longer than they need to be. Report these under **Suggestions**.
 9. **Cutover and protected decisions**
    - **Blocking:** any change to `public/CNAME` or the `siteConfig.url` origin without explicit authorization. Cutover is tracked in [#37: cutover](https://github.com/FreeForCharity/FFC-EX-theeverythingproject.org/issues/37).
-   - **Blocking:** any change that reverses a protected decision in `CLAUDE.md`. That includes restoring the dropped GiveWP pages, replacing the `mailto:` forms, claiming online giving works, and adding an EIN or 501(c)(3) claim.
+   - **Blocking:** any change that reverses a protected decision in `CLAUDE.md`. That includes restoring the dropped GiveWP pages, replacing the `mailto:` forms, claiming online giving works, and adding a GuideStar seal or 501(c)(3) claim the charity has not provided or ProPublica does not confirm.
 
 ## How to report
 

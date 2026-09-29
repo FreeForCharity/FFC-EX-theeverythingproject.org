@@ -28,18 +28,17 @@ Democratic Republic of the Congo.
   `donation-history`, `donation-confirmation`, `donation-failed`) rendered nothing but an unfilled
   shortcode and are meaningless without a live donation backend; the `hello-world` post is
   WordPress's default, unedited sample post. Neither is present in this site.
-- **FFC standard footer**, Level 1 (see below).
+- **FFC standard footer** (see below).
 
-## Footer standard: Level 1 — no EIN or 501(c)(3) claim
+## Footer standard: EIN and 501(c)(3) status
 
-The live source site's own footer and schema.org markup publish an EIN (`85-4043819`) and
-describe the org as a "501c3 charity" — but that is the charity's own unverified self-report on a
-legacy site, not something validated in FFC's onboarding records for this migration. Per the
-migration's rule against fabricating legal/EIN status, this site's footer does **not** display an
-EIN or a 501(c)(3) claim (`hasVerifiedNonprofitStatus: false` / `hasGuidestarProfile: false` in
-`src/lib/site.config.ts`). If an operator confirms the number through FFC's own records, flip
-those two flags and the footer will render the EIN line and the "a US 501(c)(3) Non Profit"
-copyright clause automatically.
+The live source site's own footer publishes the EIN `85-4043819`, and ProPublica confirms it as
+a 501(c)(3) (Everything Project, Stratham NH, ruling 2022-01). The footer therefore shows the EIN
+and the "a US 501c3 Non Profit" clause (`ein` and `taxStatusLabel` in `src/lib/site.config.ts`).
+
+No Candid/GuideStar profile has been provided, so both GuideStar URLs are empty and `guidestar`
+is listed in `siteConfig.pending`: the footer shows "Awaiting information from the charity"
+instead of a seal. Fill in the URLs and remove the entry once the charity supplies its profile.
 
 ## Deployment
 

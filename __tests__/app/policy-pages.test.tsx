@@ -1,5 +1,6 @@
 import React from 'react'
 import { render, screen } from '@testing-library/react'
+import { siteConfig } from '../../src/lib/site.config'
 
 // Import page components and their metadata exports
 import DonationPolicyPage, { metadata as donationMeta } from '../../src/app/donation-policy/page'
@@ -22,6 +23,10 @@ const pages = [
   { name: 'Vulnerability Disclosure Policy', Component: VulnDisclosurePage, meta: vulnMeta },
 ]
 
+function escapeForRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+}
+
 describe('Policy page metadata', () => {
   it.each(pages)('$name should export a title', ({ meta }) => {
     expect(meta.title).toBeDefined()
@@ -35,8 +40,16 @@ describe('Policy page metadata', () => {
     expect((meta.description as string).length).toBeGreaterThan(0)
   })
 
-  it.each(pages)('$name title should contain Free For Charity', ({ meta }) => {
-    expect(meta.title).toContain('Free For Charity')
+  // A page's own title is the PAGE name only. The root layout's
+  // `title.template` (`%s | <site name>`) appends the site name, so a page that
+  // also carries it renders "Privacy Policy | Acme | Acme". The full
+  // composition is asserted for every route in __tests__/app/sitemap.test.ts.
+  it.each(pages)('$name title omits the site name the template appends', ({ meta }) => {
+    expect(typeof meta.title).toBe('string')
+    expect((meta.title as string).length).toBeGreaterThan(0)
+    expect(meta.title as string).not.toMatch(
+      new RegExp(`\\|\\s*${escapeForRegExp(siteConfig.name)}\\s*$`)
+    )
   })
 })
 
@@ -53,9 +66,69 @@ describe('Policy page rendering', () => {
   )
 
   it('Donation Policy renders heading and EIN', () => {
-    render(<DonationPolicyPage />)
+    const { container } = render(<DonationPolicyPage />)
     expect(screen.getByText('Donation Policy')).toBeInTheDocument()
-    expect(screen.getByText(/46-2471893/)).toBeInTheDocument()
+    // A pending EIN is empty, and no "(EIN: )" is rendered for it.
+    if (siteConfig.ein.trim()) {
+      expect(screen.getByText(new RegExp(siteConfig.ein))).toBeInTheDocument()
+    } else {
+      expect(container.textContent).not.toContain('EIN:')
+    }
+  })
+
+  // Pins the rendered sentence: this charity's name and EIN, formatted
+  // "(EIN: <ein>)." — guards against a reformat splitting the parenthetical.
+  // Reads whichever sentence this site's configured tax status calls for, so a
+  // correctly provisioned pre-501(c)(3) charity does not fail its own CI.
+  it('Donation Policy states the EIN in one clean parenthetical', () => {
+    const { container } = render(<DonationPolicyPage />)
+    const ein = siteConfig.ein.trim() ? ` (EIN: ${siteConfig.ein})` : ''
+    expect(container.textContent).toContain(
+      siteConfig.taxStatusLabel.trim()
+        ? `${siteConfig.name} is a qualified 501(c)(3) nonprofit organization${ein}.`
+        : `${siteConfig.name}${ein} has not yet received IRS recognition`
+    )
+  })
+
+  // The tax-deductibility sentence is a legal claim: a pre-501(c)(3)
+  // organization (empty taxStatusLabel) must not make it.
+  it('Donation Policy claims deductibility only with a tax status', () => {
+    const original = siteConfig.taxStatusLabel
+    try {
+      siteConfig.taxStatusLabel = ''
+      const { container, unmount } = render(<DonationPolicyPage />)
+      expect(container.textContent).not.toContain('qualified 501(c)(3)')
+      expect(container.textContent).not.toContain('Donations are tax-deductible')
+      expect(container.textContent).toContain('may not be tax-deductible')
+      unmount()
+      siteConfig.taxStatusLabel = 'a US 501c3 Non Profit'
+      const { container: recognized } = render(<DonationPolicyPage />)
+      expect(recognized.textContent).toContain('Donations are tax-deductible')
+    } finally {
+      siteConfig.taxStatusLabel = original
+    }
+  })
+
+  it("Donation Policy describes this organization's mission, not FFC's services", () => {
+    const { container } = render(<DonationPolicyPage />)
+    expect(container.textContent).toContain(siteConfig.mission)
+    expect(container.textContent).not.toContain('Free domain registration and hosting services')
+  })
+
+  // Same guard as the footer: a number shows only when both parts are set.
+  it.each([
+    ['both empty', { display: '', tel: '' }],
+    ['display only', { display: '(555) 123-4567', tel: '' }],
+    ['tel only', { display: '', tel: '5551234567' }],
+  ])('Donation Policy shows no phone line when %s', (_label, phone) => {
+    const original = { ...siteConfig.phone }
+    try {
+      siteConfig.phone = { ...phone }
+      const { container } = render(<DonationPolicyPage />)
+      expect(container.textContent).not.toContain('Phone:')
+    } finally {
+      siteConfig.phone = original
+    }
   })
 
   it('Donation Policy contains expected sections', () => {
@@ -67,8 +140,8 @@ describe('Policy page rendering', () => {
 
   it('Donation Policy has a contact email link', () => {
     render(<DonationPolicyPage />)
-    const emailLink = screen.getByText('clarkemoyer@freeforcharity.org')
-    expect(emailLink.closest('a')).toHaveAttribute('href', 'mailto:clarkemoyer@freeforcharity.org')
+    const emailLink = screen.getByText(siteConfig.contactEmail)
+    expect(emailLink.closest('a')).toHaveAttribute('href', `mailto:${siteConfig.contactEmail}`)
   })
 
   it('Security Acknowledgements renders heading', () => {

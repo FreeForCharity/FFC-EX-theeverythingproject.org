@@ -44,7 +44,13 @@ body {
 #header {
   font-family: var(--font-open-sans), sans-serif !important;
 }
-#aria-font {
+/*
+ * Both spellings: the footer and policy pages use the `aria-font` class (ids
+ * must be unique, and this hook appears several times on one page); older
+ * pages still carry the id.
+ */
+#aria-font,
+.aria-font {
   font-family: var(--font-open-sans), sans-serif !important;
 }
 #lato-font,

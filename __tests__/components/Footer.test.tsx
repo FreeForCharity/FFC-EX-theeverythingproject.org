@@ -2,6 +2,7 @@ import React from 'react'
 import { render, screen } from '@testing-library/react'
 import { axe, toHaveNoViolations } from 'jest-axe'
 import Footer from '../../src/components/footer'
+import { PENDING_TEXT, type PendingField, siteConfig } from '../../src/lib/site.config'
 
 // Extend Jest matchers
 expect.extend(toHaveNoViolations)
@@ -13,17 +14,18 @@ describe('Footer component', () => {
     expect(footer).toBeInTheDocument()
   })
 
-  it('should NOT display an Endorsements section (no confirmed GuideStar profile — FFC footer standard Level 1)', () => {
+  it('shows a GuideStar placeholder, and no seal or profile link, while GuideStar is pending', () => {
     render(<Footer />)
-    expect(screen.queryByText('Endorsements')).not.toBeInTheDocument()
+    expect(screen.getByText('Endorsements')).toBeInTheDocument()
+    expect(screen.getByText('GuideStar / Candid Profile')).toBeInTheDocument()
     expect(screen.queryByAltText('GuideStar Platinum Seal of Transparency')).not.toBeInTheDocument()
     expect(screen.queryByText('Direct GuideStar Profile Link')).not.toBeInTheDocument()
   })
 
-  it('should NOT display an EIN or claim 501(c)(3) status (unverified — FFC footer standard Level 1)', () => {
+  it('displays the EIN and the 501(c)(3) clause', () => {
     render(<Footer />)
-    expect(screen.queryByText(/EIN/)).not.toBeInTheDocument()
-    expect(screen.queryByText(/501/)).not.toBeInTheDocument()
+    expect(screen.getByText(`${siteConfig.name} EIN: ${siteConfig.ein}`)).toBeInTheDocument()
+    expect(screen.getByText(/a US 501c3 Non Profit/)).toBeInTheDocument()
   })
 
   it('should display Quick Links section', () => {
@@ -165,5 +167,87 @@ describe('Footer component', () => {
     const { container } = render(<Footer />)
     const results = await axe(container)
     expect(results).toHaveNoViolations()
+  })
+})
+
+// The `pending` convention (see PendingField in src/lib/site.config.ts): a
+// footer-standard field the charity has not supplied yet keeps an EMPTY value
+// and renders PENDING_TEXT in its slot as plain text, never a link.
+describe('pending footer fields', () => {
+  const original = {
+    contactEmail: siteConfig.contactEmail,
+    phone: siteConfig.phone,
+    addresses: siteConfig.addresses,
+    ein: siteConfig.ein,
+    guidestar: siteConfig.guidestar,
+    social: siteConfig.social,
+    pending: siteConfig.pending,
+  }
+  afterEach(() => {
+    Object.assign(siteConfig, original)
+  })
+
+  // This site's Donate / Volunteer links go to its own pages, so the footer
+  // slots that can be pending are these.
+  const footerFields: readonly PendingField[] = [
+    'guidestar',
+    'ein',
+    'email',
+    'phone',
+    'address',
+    'social',
+  ]
+
+  it('renders one non-link placeholder per pending footer field in the shipped config', () => {
+    render(<Footer />)
+    const pendingInFooter = (siteConfig.pending ?? []).filter((f) => footerFields.includes(f))
+    const notes = screen.queryAllByText(PENDING_TEXT)
+    expect(notes).toHaveLength(pendingInFooter.length)
+    for (const note of notes) expect(note.closest('a')).toBeNull()
+  })
+
+  it('renders a visible, non-link placeholder for each pending footer field', () => {
+    siteConfig.contactEmail = ''
+    siteConfig.phone = { display: '', tel: '' }
+    siteConfig.addresses = []
+    siteConfig.ein = ''
+    siteConfig.guidestar = { profileUrl: '', directProfileUrl: '' }
+    siteConfig.social = siteConfig.social.map((link) => ({ ...link, href: '' }))
+    siteConfig.pending = [...footerFields]
+    render(<Footer />)
+
+    const notes = screen.getAllByText(PENDING_TEXT)
+    expect(notes).toHaveLength(footerFields.length)
+    for (const note of notes) expect(note.closest('a')).toBeNull()
+    expect(document.querySelector('a[href^="tel:"]')).toBeNull()
+    expect(document.querySelector('a[href*="google.com/maps"]')).toBeNull()
+    expect(document.querySelector('a[href="mailto:"]')).toBeNull()
+  })
+
+  it('treats an empty field that is NOT pending as "the charity has none"', () => {
+    siteConfig.phone = { display: '', tel: '' }
+    siteConfig.guidestar = { profileUrl: '', directProfileUrl: '' }
+    siteConfig.pending = []
+    render(<Footer />)
+
+    expect(screen.queryByText(PENDING_TEXT)).toBeNull()
+    expect(screen.queryByText('Call Us Today')).toBeNull()
+    expect(screen.queryByText('GuideStar / Candid Profile')).toBeNull()
+  })
+
+  it('shows each GuideStar element only when its own URL is configured', () => {
+    siteConfig.guidestar = {
+      profileUrl: 'https://example.org/seal',
+      directProfileUrl: 'https://example.org/direct',
+    }
+    siteConfig.pending = []
+    render(<Footer />)
+    expect(
+      screen.getByAltText('GuideStar Platinum Seal of Transparency').closest('a')
+    ).toHaveAttribute('href', 'https://example.org/seal')
+    expect(screen.getByText('Direct GuideStar Profile Link').closest('a')).toHaveAttribute(
+      'href',
+      'https://example.org/direct'
+    )
   })
 })
