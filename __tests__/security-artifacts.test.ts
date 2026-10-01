@@ -2,6 +2,8 @@ import { existsSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { siteConfig } from '../src/lib/site.config'
 
+const GITHUB_PAGES_PROJECT_PATH = '/FFC-EX-theeverythingproject.org'
+
 const root = process.cwd()
 
 function readFixture(path: string): string {
@@ -49,28 +51,21 @@ describe('deployable security artifacts', () => {
     const wellKnownPayload = payload(wellKnown)
 
     expect(payload(rootCopy)).toBe(wellKnownPayload)
-    expect(wellKnownPayload).toContain(`Contact: mailto:${siteConfig.contactEmail}`)
+    // No Contact line until the charity's email is known (never another
+    // organization's address).
+    if (siteConfig.contactEmail) {
+      expect(wellKnownPayload).toContain(`Contact: mailto:${siteConfig.contactEmail}`)
+    } else {
+      expect(wellKnownPayload).not.toMatch(/^Contact:/m)
+    }
     expect(wellKnownPayload).toContain('Preferred-Languages: en')
-    expect(wellKnownPayload).toContain(`Canonical: ${siteConfig.url}/.well-known/security.txt`)
-    expect(wellKnownPayload).toContain(`Canonical: ${siteConfig.url}/security.txt`)
-    expect(wellKnownPayload).toContain(
-      `Canonical: ${siteConfig.url}/FFC-EX-theeverythingproject.org/.well-known/security.txt`
-    )
-    expect(wellKnownPayload).toContain(
-      `Canonical: ${siteConfig.url}/FFC-EX-theeverythingproject.org/security.txt`
-    )
-    expect(wellKnownPayload).toContain(
-      `Policy: ${siteConfig.url}${siteConfig.vulnerabilityDisclosurePath}`
-    )
-    expect(wellKnownPayload).toContain(
-      `Policy: ${siteConfig.url}/FFC-EX-theeverythingproject.org${siteConfig.vulnerabilityDisclosurePath}`
-    )
-    expect(wellKnownPayload).toContain(
-      `Acknowledgments: ${siteConfig.url}/security-acknowledgements`
-    )
-    expect(wellKnownPayload).toContain(
-      `Acknowledgments: ${siteConfig.url}/FFC-EX-theeverythingproject.org/security-acknowledgements`
-    )
+    // No public/CNAME: the site is served only under the GitHub Pages project
+    // path, so every URL carries it.
+    const base = `${siteConfig.url}${GITHUB_PAGES_PROJECT_PATH}`
+    expect(wellKnownPayload).toContain(`Canonical: ${base}/.well-known/security.txt`)
+    expect(wellKnownPayload).toContain(`Canonical: ${base}/security.txt`)
+    expect(wellKnownPayload).toContain(`Policy: ${base}${siteConfig.vulnerabilityDisclosurePath}`)
+    expect(wellKnownPayload).toContain(`Acknowledgments: ${base}/security-acknowledgements`)
 
     const expires = wellKnownPayload.match(/^Expires:\s*(.+)$/m)?.[1]
     expect(expires).toBeDefined()

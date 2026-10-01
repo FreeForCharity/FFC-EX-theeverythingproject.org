@@ -4,6 +4,14 @@ import { cardDescription, siteConfig, siteUrl, twitterSite } from '@/lib/site.co
 
 const defaultTitle = `${siteConfig.name} | ${siteConfig.tagline}`
 
+// 1200x630 social card rendered from siteConfig by `pnpm run og:card`.
+const socialCard = {
+  url: assetPath('/og-card.png'),
+  width: 1200,
+  height: 630,
+  alt: `${siteConfig.name} — ${siteConfig.tagline}`,
+}
+
 export const siteMetadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
   title: {
@@ -32,21 +40,14 @@ export const siteMetadata: Metadata = {
     siteName: siteConfig.name,
     title: defaultTitle,
     description: cardDescription(),
-    images: [
-      {
-        url: assetPath('/web-app-manifest-512x512.png'),
-        width: 512,
-        height: 512,
-        alt: siteConfig.name,
-      },
-    ],
+    images: [socialCard],
   },
   twitter: {
     card: 'summary_large_image',
     site: twitterSite(),
     title: defaultTitle,
     description: cardDescription(),
-    images: [assetPath('/web-app-manifest-512x512.png')],
+    images: [socialCard.url],
   },
   icons: {
     icon: [

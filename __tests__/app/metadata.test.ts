@@ -56,25 +56,21 @@ describe('Page metadata', () => {
     ['contact-us', '/contact-us/', 'Contact Us'],
     ['gallery', '/gallery/', 'Gallery'],
     ['crayon-drive-photo-album', '/crayon-drive-photo-album/', 'Crayon Drive Photo Album'],
-    ['privacy-policy', '/privacy-policy/', 'Privacy Policy | Free For Charity'],
-    ['cookie-policy', '/cookie-policy/', 'Cookie Policy | Free For Charity'],
-    ['terms-of-service', '/terms-of-service/', 'Terms of Service | Free For Charity'],
-    ['donation-policy', '/donation-policy/', 'Donation Policy | Free For Charity'],
+    ['privacy-policy', '/privacy-policy/', 'Privacy Policy'],
+    ['cookie-policy', '/cookie-policy/', 'Cookie Policy'],
+    ['terms-of-service', '/terms-of-service/', 'Terms of Service'],
+    ['donation-policy', '/donation-policy/', 'Donation Policy'],
     [
       'free-for-charity-donation-policy',
       '/free-for-charity-donation-policy/',
-      'Free For Charity Donation Policy | Free For Charity',
+      'Free For Charity Donation Policy',
     ],
     [
       'vulnerability-disclosure-policy',
       '/vulnerability-disclosure-policy/',
-      'Vulnerability Disclosure Policy | Free For Charity',
+      'Vulnerability Disclosure Policy',
     ],
-    [
-      'security-acknowledgements',
-      '/security-acknowledgements/',
-      'Security Acknowledgements | Free For Charity',
-    ],
+    ['security-acknowledgements', '/security-acknowledgements/', 'Security Acknowledgements'],
   ] as const
 
   it.each(ROUTES)('%s has its own Open Graph and Twitter card', async (dir, path, title) => {

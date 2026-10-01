@@ -538,16 +538,21 @@ async function checkSecurityTxtSync(siteConfig) {
 
   if (!siteConfig?.url) return
   const origin = siteConfig.url.replace(/\/$/, '')
+  // A GitHub Pages project deploy (a github.io origin and no public/CNAME) is
+  // served ONLY under the project path: the origin root is a different site,
+  // so root-level lines would name files this repo never serves.
+  const cname = (await readIfExists(join(PUBLIC_DIR, 'CNAME')))?.trim() || null
+  const projectPathOnly = !cname && /\.github\.io$/i.test(hostnameOf(origin) ?? '')
   const expectedLines = [
     siteConfig.contactEmail ? `Contact: mailto:${siteConfig.contactEmail}` : null,
     'Preferred-Languages: en',
-    `Canonical: ${origin}/.well-known/security.txt`,
-    `Canonical: ${origin}/security.txt`,
+    projectPathOnly ? null : `Canonical: ${origin}/.well-known/security.txt`,
+    projectPathOnly ? null : `Canonical: ${origin}/security.txt`,
     `Canonical: ${origin}${GITHUB_PAGES_PROJECT_PATH}/.well-known/security.txt`,
     `Canonical: ${origin}${GITHUB_PAGES_PROJECT_PATH}/security.txt`,
-    `Policy: ${origin}${siteConfig.vulnerabilityDisclosurePath}`,
+    projectPathOnly ? null : `Policy: ${origin}${siteConfig.vulnerabilityDisclosurePath}`,
     `Policy: ${origin}${GITHUB_PAGES_PROJECT_PATH}${siteConfig.vulnerabilityDisclosurePath}`,
-    `Acknowledgments: ${origin}/security-acknowledgements`,
+    projectPathOnly ? null : `Acknowledgments: ${origin}/security-acknowledgements`,
     `Acknowledgments: ${origin}${GITHUB_PAGES_PROJECT_PATH}/security-acknowledgements`,
   ].filter(Boolean)
 

@@ -1,11 +1,12 @@
 'use client'
 
 import Script from 'next/script'
-
-// Google Tag Manager ID
-const GTM_ID = 'GTM-TQ5H8HPR'
+import { GTM_ID } from '@/lib/analytics.config'
 
 export default function GoogleTagManager() {
+  // No container provisioned yet: emit no tag rather than one that requests
+  // `gtm.js?id=` and fails.
+  if (!GTM_ID.trim()) return null
   return (
     <>
       {/* Google Tag Manager Script - loaded with lazyOnload for better performance */}
@@ -28,6 +29,7 @@ export default function GoogleTagManager() {
 
 // Export a component for the noscript iframe that goes in the body
 export function GoogleTagManagerNoScript() {
+  if (!GTM_ID.trim()) return null
   return (
     <noscript>
       <iframe

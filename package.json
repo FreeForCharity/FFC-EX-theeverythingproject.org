@@ -10,6 +10,7 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "preview": "pnpm exec serve out -l 3000",
+    "og:card": "node scripts/generate-og-card.mjs",
     "lint": "eslint",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
