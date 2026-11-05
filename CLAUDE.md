@@ -11,6 +11,21 @@ See **AGENTS.md** for the template reference (architecture, commands, convention
 
 ---
 
+## Start Here: Open Work
+
+Everything still needed before launch is listed in
+[#81: start here](https://github.com/FreeForCharity/FFC-EX-theeverythingproject.org/issues/81).
+Read it before picking up any task.
+
+- **`needs-charity`** issues are waiting on an answer or action from the charity manager. Do not
+  guess the answer. Help the charity manager reply in the issue, then implement exactly what they
+  decided, in a PR that links the issue.
+- **`needs-ffc`** issues need Free For Charity staff (admin access, approvals, org-level settings).
+- The charity's answers belong in the issues. Never write a password, login code, or private
+  personal details into an issue, PR, or commit: this repository is public.
+
+---
+
 ## Hard Rules
 
 - **No `public/CNAME`, DNS, Cloudflare, or custom-domain change without explicit authorization.**
